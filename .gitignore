@@ -24,3 +24,4 @@ yarn-error.log*
 
 .env
 # local env files.env
+.env.example
