@@ -1,0 +1,11 @@
+/* You can keep this file minimal as Tailwind will handle most styling */
+/* Custom animations or styles not easily achieved with Tailwind can go here */
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
