@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabase"; // Impor supabase client
+import { motion, AnimatePresence } from "framer-motion";
 
 // Perbarui interface Item sesuai dengan struktur tabel Post di Supabase
 interface Item {
@@ -118,17 +119,31 @@ const Items: React.FC = () => {
   }
 
   // Fungsi bantuan untuk merender berbagai jenis kartu
-  const renderCard = (item: Item) => {
+  const renderCard = (item: Item, index: number) => {
     return (
-      <div
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: 0.5,
+          delay: index * 0.1,
+          ease: "easeOut",
+        }}
+        whileHover={{
+          scale: 1.03,
+          boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
+        }}
         className="group cursor-pointer bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 h-full flex flex-col"
         onClick={() => openModal(item)}
+        layout
       >
         <div className="aspect-square overflow-hidden">
-          <img
+          <motion.img
             src={item.imageUrl}
             alt={item.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-cover"
+            whileHover={{ scale: 1.05 }}
+            transition={{ duration: 0.5 }}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.src =
@@ -144,9 +159,12 @@ const Items: React.FC = () => {
             {item.description}
           </p>
           <div className="flex justify-between items-center">
-            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+            <motion.span
+              whileHover={{ scale: 1.05 }}
+              className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"
+            >
               {item.condition}
-            </span>
+            </motion.span>
             <span className="text-xs text-gray-500">
               {new Date(item.createdAt).toLocaleDateString("id-ID", {
                 day: "numeric",
@@ -155,15 +173,19 @@ const Items: React.FC = () => {
             </span>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   };
 
   // Render versi kartu yang lebih kecil untuk sidebar
   const renderSidebarCard = (item: Item) => {
     return (
-      <div
+      <motion.div
         key={item.id}
+        whileHover={{
+          backgroundColor: "rgba(239, 246, 255, 0.9)",
+          x: 2,
+        }}
         className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-50 cursor-pointer transition-colors duration-200"
         onClick={() => openModal(item)}
       >
@@ -204,7 +226,7 @@ const Items: React.FC = () => {
             </span>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   };
 
@@ -227,17 +249,27 @@ const Items: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 bg-gradient-to-b from-blue-50 to-white min-h-screen">
-      <div className="mb-8">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="mb-8"
+      >
         <h1 className="text-3xl font-bold mb-2 text-blue-900">
           Galeri Barang Bekas
         </h1>
         <p className="text-blue-700">
           Jelajahi barang bekas yang bisa diubah menjadi barang bernilai
         </p>
-      </div>
+      </motion.div>
 
       {items.length === 0 ? (
-        <div className="bg-white p-8 rounded-xl shadow-sm text-center">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="bg-white p-8 rounded-xl shadow-sm text-center"
+        >
           <svg
             className="w-16 h-16 text-blue-400 mx-auto mb-4"
             fill="none"
@@ -258,15 +290,17 @@ const Items: React.FC = () => {
           <p className="text-gray-500 mt-2">
             Kembali lagi nanti untuk melihat barang terbaru.
           </p>
-        </div>
+        </motion.div>
       ) : (
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Konten Utama - Sisi Kiri */}
           <div className="w-full lg:w-9/12">
-            <div className="flex flex-wrap gap-2 mb-6">
+            <motion.div layout className="flex flex-wrap gap-2 mb-6">
               {filters.map((filter) => (
-                <button
+                <motion.button
                   key={filter.id}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
                     activeFilter === filter.id
                       ? "bg-blue-600 text-white"
@@ -275,119 +309,142 @@ const Items: React.FC = () => {
                   onClick={() => setActiveFilter(filter.id)}
                 >
                   {filter.name}
-                </button>
+                </motion.button>
               ))}
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-12 gap-4">
-              {filteredItems.map((item, index) => {
-                // Untuk item pertama, selalu jadikan featured jika belum
-                if (index === 0 && !item.featured) {
-                  return (
-                    <div
-                      key={item.id}
-                      className="col-span-12 md:col-span-8 transition-all duration-300 hover:transform hover:scale-[1.01]"
-                    >
-                      <div
-                        className="group cursor-pointer relative rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 h-full"
-                        onClick={() => openModal(item)}
+            <motion.div layout className="grid grid-cols-12 gap-4">
+              <AnimatePresence>
+                {filteredItems.map((item, index) => {
+                  // Untuk item pertama, selalu jadikan featured jika belum
+                  if (index === 0 && !item.featured) {
+                    return (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5 }}
+                        className="col-span-12 md:col-span-8 transition-all duration-300 hover:transform hover:scale-[1.01]"
                       >
-                        <div className="aspect-video h-full">
-                          <img
-                            src={item.imageUrl}
-                            alt={item.title}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src =
-                                "https://via.placeholder.com/600x400?text=Tidak+Ada+Gambar";
-                            }}
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-60 group-hover:opacity-70 transition-opacity duration-300"></div>
+                        <motion.div
+                          whileHover={{ scale: 1.01 }}
+                          className="group cursor-pointer relative rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 h-full"
+                          onClick={() => openModal(item)}
+                        >
+                          <div className="aspect-video h-full">
+                            <img
+                              src={item.imageUrl}
+                              alt={item.title}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src =
+                                  "https://via.placeholder.com/600x400?text=Tidak+Ada+Gambar";
+                              }}
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-60 group-hover:opacity-70 transition-opacity duration-300"></div>
 
-                          <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                            <h3 className="text-xl font-bold mb-2 group-hover:text-blue-300 transition-colors">
-                              {item.title}
-                            </h3>
-                            <p className="text-sm text-white/80 line-clamp-2">
-                              {item.description}
-                            </p>
-                            <div className="flex items-center justify-between mt-4">
-                              <span className="bg-blue-500/30 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full">
-                                {item.condition}
-                              </span>
-                              <div className="flex items-center space-x-1">
-                                <svg
-                                  className="w-4 h-4 text-red-500"
-                                  fill="currentColor"
-                                  viewBox="0 0 20 20"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                                <span className="text-xs">{item.likes}</span>
+                            <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                              <h3 className="text-xl font-bold mb-2 group-hover:text-blue-300 transition-colors">
+                                {item.title}
+                              </h3>
+                              <p className="text-sm text-white/80 line-clamp-2">
+                                {item.description}
+                              </p>
+                              <div className="flex items-center justify-between mt-4">
+                                <span className="bg-blue-500/30 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full">
+                                  {item.condition}
+                                </span>
+                                <div className="flex items-center space-x-1">
+                                  <svg
+                                    className="w-4 h-4 text-red-500"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                  <span className="text-xs">{item.likes}</span>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
+                        </motion.div>
+                      </motion.div>
+                    );
+                  }
 
-                if (item.featured) {
-                  return (
-                    <div
-                      key={item.id}
-                      className="col-span-12 md:col-span-8 transition-all duration-300 hover:transform hover:scale-[1.01]"
-                    >
-                      {renderCard(item)}
-                    </div>
-                  );
-                } else if (item.cardType === "with-description") {
-                  return (
-                    <div
-                      key={item.id}
-                      className="col-span-6 md:col-span-4 transition-all duration-300 hover:transform hover:scale-[1.01]"
-                    >
-                      {renderCard(item)}
-                    </div>
-                  );
-                } else {
-                  return (
-                    <div
-                      key={item.id}
-                      className="col-span-6 sm:col-span-4 md:col-span-4 transition-all duration-300 hover:transform hover:scale-[1.02]"
-                    >
-                      {renderCard(item)}
-                    </div>
-                  );
-                }
-              })}
-            </div>
+                  if (item.featured) {
+                    return (
+                      <motion.div
+                        key={item.id}
+                        className="col-span-12 md:col-span-8 transition-all duration-300 hover:transform hover:scale-[1.01]"
+                      >
+                        {renderCard(item, index)}
+                      </motion.div>
+                    );
+                  } else if (item.cardType === "with-description") {
+                    return (
+                      <motion.div
+                        key={item.id}
+                        className="col-span-6 md:col-span-4 transition-all duration-300 hover:transform hover:scale-[1.01]"
+                      >
+                        {renderCard(item, index)}
+                      </motion.div>
+                    );
+                  } else {
+                    return (
+                      <motion.div
+                        key={item.id}
+                        className="col-span-6 sm:col-span-4 md:col-span-4 transition-all duration-300 hover:transform hover:scale-[1.02]"
+                      >
+                        {renderCard(item, index)}
+                      </motion.div>
+                    );
+                  }
+                })}
+              </AnimatePresence>
+            </motion.div>
           </div>
 
           {/* Sidebar - Sisi Kanan */}
-          <div className="w-full lg:w-3/12">
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
+            className="w-full lg:w-3/12"
+          >
             <div className="sticky top-20 space-y-6">
               {/* Kotak Pencarian */}
-              <div className="bg-white rounded-xl shadow-sm p-4">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300 }}
+                className="bg-white rounded-xl shadow-sm p-4"
+              >
                 <h3 className="text-lg font-semibold mb-3 text-gray-800">
                   Cari Barang
                 </h3>
                 <div className="relative">
-                  <input
+                  <motion.input
+                    initial={{ boxShadow: "0 0 0 rgba(59, 130, 246, 0)" }}
+                    whileFocus={{
+                      boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.3)",
+                    }}
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Cari barang bekas..."
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
-                  <button className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-500">
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-500"
+                  >
                     <svg
                       className="w-5 h-5"
                       fill="none"
@@ -402,19 +459,37 @@ const Items: React.FC = () => {
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                       />
                     </svg>
-                  </button>
+                  </motion.button>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Item Populer */}
-              <div className="bg-white rounded-xl shadow-sm p-4">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="bg-white rounded-xl shadow-sm p-4"
+              >
                 <h3 className="text-lg font-semibold mb-3 text-gray-800">
                   Populer
                 </h3>
-                <div className="space-y-2">
+                <motion.div
+                  className="space-y-2"
+                  variants={{
+                    hidden: { opacity: 0 },
+                    visible: {
+                      opacity: 1,
+                      transition: {
+                        staggerChildren: 0.1,
+                      },
+                    },
+                  }}
+                  initial="hidden"
+                  animate="visible"
+                >
                   {popularItems.map((item) => renderSidebarCard(item))}
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
 
               {/* Kotak Bantuan */}
               <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-sm p-5 text-white">
@@ -456,165 +531,179 @@ const Items: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
 
       {/* Modal Bergaya Instagram */}
-      {showModal && selectedItem && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
-          onClick={handleOutsideClick}
-        >
-          <div
-            className="bg-white rounded-xl overflow-hidden max-w-4xl w-full max-h-[90vh] flex flex-col md:flex-row"
-            onClick={(e) => e.stopPropagation()}
+      <AnimatePresence>
+        {showModal && selectedItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
+            onClick={handleOutsideClick}
           >
-            {/* Sisi kiri - Gambar */}
-            <div className="md:w-1/2 bg-gray-100">
-              <div className="relative w-full h-full min-h-[300px]">
-                <img
-                  src={selectedItem.imageUrl}
-                  alt={selectedItem.title}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src =
-                      "https://via.placeholder.com/600?text=Tidak+Ada+Gambar";
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Sisi kanan - Konten */}
-            <div className="md:w-1/2 flex flex-col max-h-[90vh] md:max-h-full">
-              {/* Header */}
-              <div className="p-4 border-b flex items-center space-x-3">
-                <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
-                  {selectedItem.username?.[0].toUpperCase() || "P"}
-                </div>
-                <div>
-                  <p className="font-medium">
-                    {selectedItem.username || "Pengguna"}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {selectedItem.condition}
-                  </p>
-                </div>
-                <button
-                  className="ml-auto text-gray-500 hover:text-gray-700"
-                  onClick={closeModal}
-                >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Konten */}
-              <div className="p-4 overflow-y-auto flex-grow">
-                <h2 className="text-xl font-bold mb-2">{selectedItem.title}</h2>
-                <p className="text-gray-700 mb-4">{selectedItem.description}</p>
-
-                <div className="mb-4">
-                  <span className="inline-block bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded-full mr-2">
-                    {selectedItem.condition}
-                  </span>
-                  <span className="text-gray-500 text-sm">
-                    {new Date(selectedItem.createdAt).toLocaleDateString(
-                      "id-ID",
-                      {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      }
-                    )}
-                  </span>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="bg-white rounded-xl overflow-hidden max-w-4xl w-full max-h-[90vh] flex flex-col md:flex-row"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Sisi kiri - Gambar */}
+              <div className="md:w-1/2 bg-gray-100">
+                <div className="relative w-full h-full min-h-[300px]">
+                  <img
+                    src={selectedItem.imageUrl}
+                    alt={selectedItem.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src =
+                        "https://via.placeholder.com/600?text=Tidak+Ada+Gambar";
+                    }}
+                  />
                 </div>
               </div>
 
-              {/* Footer */}
-              <div className="p-4 border-t">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-4">
-                    <button className="text-gray-700 hover:text-red-500">
-                      <svg
-                        className="w-6 h-6"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                        />
-                      </svg>
-                    </button>
-                    <button className="text-gray-700 hover:text-blue-500">
-                      <svg
-                        className="w-6 h-6"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                        />
-                      </svg>
-                    </button>
-                    <button className="text-gray-700 hover:text-blue-500">
-                      <svg
-                        className="w-6 h-6"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                        />
-                      </svg>
-                    </button>
+              {/* Sisi kanan - Konten */}
+              <div className="md:w-1/2 flex flex-col max-h-[90vh] md:max-h-full">
+                {/* Header */}
+                <div className="p-4 border-b flex items-center space-x-3">
+                  <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                    {selectedItem.username?.[0].toUpperCase() || "P"}
                   </div>
-                  <span className="text-sm font-medium">
-                    {selectedItem.likes || 0} suka
-                  </span>
+                  <div>
+                    <p className="font-medium">
+                      {selectedItem.username || "Pengguna"}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {selectedItem.condition}
+                    </p>
+                  </div>
+                  <button
+                    className="ml-auto text-gray-500 hover:text-gray-700"
+                    onClick={closeModal}
+                  >
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
                 </div>
 
-                <a
-                  href="https://kraftzy.vercel.app/login"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded text-center block"
-                >
-                  Lihat Detail Barang
-                </a>
+                {/* Konten */}
+                <div className="p-4 overflow-y-auto flex-grow">
+                  <h2 className="text-xl font-bold mb-2">
+                    {selectedItem.title}
+                  </h2>
+                  <p className="text-gray-700 mb-4">
+                    {selectedItem.description}
+                  </p>
+
+                  <div className="mb-4">
+                    <span className="inline-block bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded-full mr-2">
+                      {selectedItem.condition}
+                    </span>
+                    <span className="text-gray-500 text-sm">
+                      {new Date(selectedItem.createdAt).toLocaleDateString(
+                        "id-ID",
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        }
+                      )}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="p-4 border-t">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-4">
+                      <button className="text-gray-700 hover:text-red-500">
+                        <svg
+                          className="w-6 h-6"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                          />
+                        </svg>
+                      </button>
+                      <button className="text-gray-700 hover:text-blue-500">
+                        <svg
+                          className="w-6 h-6"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                          />
+                        </svg>
+                      </button>
+                      <button className="text-gray-700 hover:text-blue-500">
+                        <svg
+                          className="w-6 h-6"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                    <span className="text-sm font-medium">
+                      {selectedItem.likes || 0} suka
+                    </span>
+                  </div>
+
+                  <a
+                    href="https://kraftzy.vercel.app/login"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded text-center block"
+                  >
+                    Lihat Detail Barang
+                  </a>
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

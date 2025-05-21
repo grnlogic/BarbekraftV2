@@ -12,6 +12,7 @@ import { checkOpenAIStatus, checkGeminiStatus } from "./utils/checkApiStatus";
 
 // Pages
 import Home from "./pages/Home";
+import WasteStatistics from "./pages/WasteStatistics";
 
 // Lazy loaded pages
 const Items = React.lazy(() => import("./pages/Items"));
@@ -68,6 +69,7 @@ function App() {
               <Route path="/dashboard/*" element={<Dashboard />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/waste-statistics" element={<WasteStatistics />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </React.Suspense>

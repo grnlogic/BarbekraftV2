@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { itemsAPI } from "../services/api";
+import { motion } from "framer-motion";
 
 interface Item {
   id: string;
@@ -45,7 +46,11 @@ const ItemDetail: React.FC = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+          className="rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"
+        ></motion.div>
       </div>
     );
   }
@@ -71,17 +76,37 @@ const ItemDetail: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 bg-gradient-to-b from-blue-50 to-white min-h-screen">
-      <button
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="container mx-auto px-4 py-8 bg-gradient-to-b from-blue-50 to-white min-h-screen"
+    >
+      <motion.button
+        initial={{ x: -20, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        whileHover={{ x: -5 }}
+        whileTap={{ scale: 0.95 }}
         onClick={() => navigate("/items")}
         className="mb-6 bg-white hover:bg-gray-100 text-blue-700 font-bold py-2 px-4 rounded-lg inline-flex items-center shadow-sm transition duration-300 hover:translate-x-1"
       >
         <span>← Back to Items</span>
-      </button>
+      </motion.button>
 
-      <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+        className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100"
+      >
         <div className="md:flex">
-          <div className="md:w-1/2">
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="md:w-1/2"
+          >
             <img
               src={item.imageUrl}
               alt={item.title}
@@ -92,44 +117,91 @@ const ItemDetail: React.FC = () => {
                   "https://via.placeholder.com/600x400?text=No+Image";
               }}
             />
-          </div>
+          </motion.div>
 
-          <div className="md:w-1/2 p-8">
+          <motion.div
+            initial={{ x: 20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+            className="md:w-1/2 p-8"
+          >
             <h1 className="text-3xl font-bold mb-4 text-gray-800">
               {item.title}
             </h1>
 
             <div className="flex items-center mb-4">
-              <span className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full mr-3">
+              <motion.span
+                whileHover={{ scale: 1.05 }}
+                className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full mr-3"
+              >
                 {item.condition}
-              </span>
-              <span className="bg-indigo-100 text-indigo-800 text-sm px-3 py-1 rounded-full">
+              </motion.span>
+              <motion.span
+                whileHover={{ scale: 1.05 }}
+                className="bg-indigo-100 text-indigo-800 text-sm px-3 py-1 rounded-full"
+              >
                 {item.category}
-              </span>
+              </motion.span>
             </div>
 
-            <p className="text-gray-700 mb-6 whitespace-pre-line leading-relaxed">
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="text-gray-700 mb-6 whitespace-pre-line leading-relaxed"
+            >
               {item.description}
-            </p>
+            </motion.p>
 
-            <div className="mb-6 bg-blue-50 p-4 rounded-lg">
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.7 }}
+              className="mb-6 bg-blue-50 p-4 rounded-lg"
+            >
               <h2 className="text-xl font-semibold mb-2 text-blue-900">
                 Ide Daur Ulang:
               </h2>
               {item.recyclingIdeas && item.recyclingIdeas.length > 0 ? (
-                <ul className="list-disc list-inside text-gray-700 space-y-1">
+                <motion.ul
+                  className="list-disc list-inside text-gray-700 space-y-1"
+                  variants={{
+                    hidden: { opacity: 0 },
+                    show: {
+                      opacity: 1,
+                      transition: {
+                        staggerChildren: 0.1,
+                      },
+                    },
+                  }}
+                  initial="hidden"
+                  animate="show"
+                >
                   {item.recyclingIdeas.map((idea, index) => (
-                    <li key={index}>{idea}</li>
+                    <motion.li
+                      key={index}
+                      variants={{
+                        hidden: { opacity: 0, x: -10 },
+                        show: { opacity: 1, x: 0 },
+                      }}
+                    >
+                      {idea}
+                    </motion.li>
                   ))}
-                </ul>
+                </motion.ul>
               ) : (
                 <p className="text-gray-500 italic">
                   Belum ada ide daur ulang.
                 </p>
               )}
-            </div>
+            </motion.div>
 
-            <div className="border-t border-gray-200 pt-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="border-t border-gray-200 pt-4"
+            >
               <p className="text-gray-600">
                 Diposting oleh:{" "}
                 <span className="font-semibold text-blue-700">
@@ -144,11 +216,11 @@ const ItemDetail: React.FC = () => {
                   day: "numeric",
                 })}
               </p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

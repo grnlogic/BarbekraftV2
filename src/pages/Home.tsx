@@ -4,6 +4,7 @@ import ImageUploader from "../components/ImageUploader";
 import CraftResult from "../components/CraftResult";
 import { SuggestionResponse } from "../types";
 import { motion } from "framer-motion";
+import Logo from "../images/Logo.png";
 
 const Home: React.FC = () => {
   const [result, setResult] = useState<SuggestionResponse | null>(null);
@@ -105,8 +106,7 @@ const Home: React.FC = () => {
                   className="relative z-10 w-full h-full object-cover rounded-2xl shadow-xl"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.src =
-                      "https://images.pexels.com/photos/7658308/pexels-photo-7658308.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
+                    target.src = Logo;
                   }}
                 />
                 <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-yellow-400 rounded-full opacity-20 blur-xl"></div>
@@ -411,6 +411,108 @@ const Home: React.FC = () => {
         </div>
       </div>
 
+      {/* Tambahkan setelah bagian "How it works" */}
+      <div className="py-16 bg-gradient-to-br from-slate-100 to-blue-100">
+        <div className="container mx-auto px-6">
+          <div className="max-w-3xl mx-auto text-center mb-12">
+            <span className="inline-block px-3 py-1 bg-indigo-100 text-indigo-600 rounded-full text-sm font-medium mb-4">
+              Data Sampah Indonesia
+            </span>
+            <h2 className="text-3xl font-bold mb-4 text-slate-800">
+              Mengapa Daur Ulang Itu Penting?
+            </h2>
+            <p className="text-slate-600 mb-6">
+              40,17% sampah di Indonesia masih tidak terkelola. Mari jadilah bagian dari solusi!
+            </p>
+            
+            <div className="flex justify-center">
+              <Link
+                to="/waste-statistics"
+                className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-blue-500 text-white font-medium rounded-full hover:shadow-lg transition-all duration-300"
+              >
+                Lihat Data Statistik Lengkap
+              </Link>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {/* Preview Chart Card */}
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+              <div className="p-4">
+                <h3 className="text-lg font-semibold mb-2 text-center">Status Pengelolaan Sampah 2024</h3>
+                <div className="flex gap-2 justify-center mb-4">
+                  <div className="flex items-center">
+                    <div className="w-3 h-3 bg-emerald-500 rounded-full mr-1"></div>
+                    <span className="text-sm">Terkelola (59.83%)</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-3 h-3 bg-red-500 rounded-full mr-1"></div>
+                    <span className="text-sm">Tidak Terkelola (40.17%)</span>
+                  </div>
+                </div>
+                <div className="h-[200px] relative">
+                  {/* Ini hanya placeholder, chart sebenarnya akan tampil di halaman statistik */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <svg viewBox="0 0 100 100" className="w-32 h-32">
+                      <circle cx="50" cy="50" r="40" fill="none" stroke="#e2e8f0" strokeWidth="10" />
+                      <circle 
+                        cx="50" 
+                        cy="50" 
+                        r="40" 
+                        fill="none" 
+                        stroke="#10b981" 
+                        strokeWidth="10" 
+                        strokeDasharray="251.2" 
+                        strokeDashoffset="100.5" 
+                        transform="rotate(-90 50 50)"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* CTA Card */}
+            <div className="bg-gradient-to-r from-indigo-600 to-blue-600 p-6 rounded-xl shadow-lg text-white flex flex-col justify-center">
+              <h3 className="text-2xl font-bold mb-4">40.17% Sampah Masih Tidak Terkelola</h3>
+              <p className="mb-6">Mari jadi bagian dari solusi dengan mendaur ulang barang-barang bekas secara kreatif</p>
+              <button onClick={startNewAnalysis} className="px-6 py-3 bg-white text-indigo-600 font-medium rounded-full hover:shadow-lg transition-all duration-300 self-start">
+                Mulai Daur Ulang Sekarang
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Ajakan Bertindak - Moved just above testimonial section */}
+      <div className="py-20 bg-gradient-to-r from-indigo-600 to-blue-600 text-white">
+        <div className="container mx-auto px-6 text-center">
+          <h2 className="text-3xl font-bold mb-6">
+            Siap Memulai Perjalanan Daur Ulang Anda?
+          </h2>
+          <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
+            Bergabunglah dengan komunitas kreator peduli lingkungan kami dan
+            ubah limbah Anda menjadi kreasi indah.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <a
+              href="https://kraftzy.vercel.app/login"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-8 py-4 bg-white text-indigo-600 font-medium rounded-full hover:shadow-lg hover:shadow-indigo-700/30 transition-all duration-300"
+            >
+              Mulai Sekarang
+            </a>
+            <Link
+              to="/items"
+              className="px-8 py-4 border-2 border-white text-white font-medium rounded-full hover:bg-white/10 transition-all duration-300"
+            >
+              Jelajahi Galeri
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* Testimoni Carousel - Desain Modern */}
       <div className="py-20 bg-white">
         <div className="container mx-auto px-6">
@@ -438,22 +540,6 @@ const Home: React.FC = () => {
                 <div>
                   <p className="font-semibold">Siti Nurhaliza</p>
                   <div className="flex text-yellow-400">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-4 w-4"
@@ -534,14 +620,6 @@ const Home: React.FC = () => {
                     >
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
                   </div>
                 </div>
               </div>
@@ -590,14 +668,6 @@ const Home: React.FC = () => {
                     >
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
                   </div>
                 </div>
               </div>
@@ -608,35 +678,6 @@ const Home: React.FC = () => {
             <button className="h-2 w-2 rounded-full bg-blue-600 mx-1"></button>
             <button className="h-2 w-2 rounded-full bg-blue-300 mx-1"></button>
             <button className="h-2 w-2 rounded-full bg-blue-300 mx-1"></button>
-          </div>
-        </div>
-      </div>
-
-      {/* Ajakan Bertindak */}
-      <div className="py-20 bg-gradient-to-r from-indigo-600 to-blue-600 text-white">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-6">
-            Siap Memulai Perjalanan Daur Ulang Anda?
-          </h2>
-          <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
-            Bergabunglah dengan komunitas kreator peduli lingkungan kami dan
-            ubah limbah Anda menjadi kreasi indah.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <a
-              href="https://kraftzy.vercel.app/login"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-4 bg-white text-indigo-600 font-medium rounded-full hover:shadow-lg hover:shadow-indigo-700/30 transition-all duration-300"
-            >
-              Mulai Sekarang
-            </a>
-            <Link
-              to="/items"
-              className="px-8 py-4 border-2 border-white text-white font-medium rounded-full hover:bg-white/10 transition-all duration-300"
-            >
-              Jelajahi Galeri
-            </Link>
           </div>
         </div>
       </div>

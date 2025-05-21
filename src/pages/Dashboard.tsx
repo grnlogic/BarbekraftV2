@@ -1,79 +1,127 @@
 import React from "react";
 import { Routes, Route, Link, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { motion } from "framer-motion";
 
 // Sub-components for Dashboard
 const DashboardHome = () => (
-  <div>
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ duration: 0.5 }}
+  >
     <h2 className="text-2xl font-bold mb-4 text-blue-900">
       Dashboard Overview
     </h2>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div className="bg-white p-6 rounded-xl shadow-md border border-blue-100 transition-all hover:border-blue-300">
-        <h3 className="text-lg font-semibold mb-2 text-blue-800">
-          Barang Saya
-        </h3>
-        <p className="text-3xl font-bold text-blue-600">12</p>
-      </div>
-
-      <div className="bg-white p-6 rounded-xl shadow-md border border-blue-100 transition-all hover:border-blue-300">
-        <h3 className="text-lg font-semibold mb-2 text-blue-800">
-          Ide Daur Ulang
-        </h3>
-        <p className="text-3xl font-bold text-blue-600">27</p>
-      </div>
-
-      <div className="bg-white p-6 rounded-xl shadow-md border border-blue-100 transition-all hover:border-blue-300">
-        <h3 className="text-lg font-semibold mb-2 text-blue-800">Transaksi</h3>
-        <p className="text-3xl font-bold text-blue-600">5</p>
-      </div>
+      {[
+        { title: "Barang Saya", value: "12", color: "blue" },
+        { title: "Ide Daur Ulang", value: "27", color: "blue" },
+        { title: "Transaksi", value: "5", color: "blue" },
+      ].map((card, index) => (
+        <motion.div
+          key={index}
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: index * 0.1, duration: 0.5 }}
+          whileHover={{
+            y: -5,
+            boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
+          }}
+          className="bg-white p-6 rounded-xl shadow-md border border-blue-100 transition-all hover:border-blue-300"
+        >
+          <h3 className="text-lg font-semibold mb-2 text-blue-800">
+            {card.title}
+          </h3>
+          <p className="text-3xl font-bold text-blue-600">{card.value}</p>
+        </motion.div>
+      ))}
     </div>
 
-    <div className="mt-8 bg-white p-6 rounded-xl shadow-md">
+    <motion.div
+      initial={{ y: 20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ delay: 0.4, duration: 0.5 }}
+      className="mt-8 bg-white p-6 rounded-xl shadow-md"
+    >
       <h3 className="text-lg font-semibold mb-4 text-blue-900">
         Aktivitas Terbaru
       </h3>
-      <div className="space-y-4">
-        <div className="border-b border-blue-100 pb-3">
-          <p className="text-gray-600">
-            Anda menambahkan barang baru:{" "}
-            <span className="font-medium text-blue-700">
-              Botol Plastik Bekas
-            </span>
-          </p>
-          <p className="text-sm text-gray-500">2 jam yang lalu</p>
-        </div>
-        <div className="border-b border-blue-100 pb-3">
-          <p className="text-gray-600">
-            Barang anda mendapat ide daur ulang baru
-          </p>
-          <p className="text-sm text-gray-500">5 jam yang lalu</p>
-        </div>
-        <div className="border-b border-blue-100 pb-3">
-          <p className="text-gray-600">
-            Seseorang tertarik dengan barang anda:{" "}
-            <span className="font-medium text-blue-700">Kardus Bekas</span>
-          </p>
-          <p className="text-sm text-gray-500">1 hari yang lalu</p>
-        </div>
-      </div>
-    </div>
-  </div>
+      <motion.div
+        variants={{
+          hidden: { opacity: 0 },
+          show: {
+            opacity: 1,
+            transition: {
+              staggerChildren: 0.1,
+            },
+          },
+        }}
+        initial="hidden"
+        animate="show"
+        className="space-y-4"
+      >
+        {[
+          {
+            text: "Anda menambahkan barang baru: Botol Plastik Bekas",
+            time: "2 jam yang lalu",
+          },
+          {
+            text: "Barang anda mendapat ide daur ulang baru",
+            time: "5 jam yang lalu",
+          },
+          {
+            text: "Seseorang tertarik dengan barang anda: Kardus Bekas",
+            time: "1 hari yang lalu",
+          },
+        ].map((activity, index) => (
+          <motion.div
+            key={index}
+            variants={{
+              hidden: { opacity: 0, y: 10 },
+              show: { opacity: 1, y: 0 },
+            }}
+            className="border-b border-blue-100 pb-3"
+          >
+            <p className="text-gray-600">{activity.text}</p>
+            <p className="text-sm text-gray-500">{activity.time}</p>
+          </motion.div>
+        ))}
+      </motion.div>
+    </motion.div>
+  </motion.div>
 );
 
 const MyItems = () => (
-  <div>
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ duration: 0.5 }}
+  >
     <h2 className="text-2xl font-bold mb-4 text-blue-900">Barang Saya</h2>
-    <div className="bg-white rounded-xl shadow-md overflow-hidden">
+    <motion.div
+      initial={{ y: 20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ delay: 0.2 }}
+      className="bg-white rounded-xl shadow-md overflow-hidden"
+    >
       <div className="p-4 flex justify-between items-center bg-blue-50">
-        <input
+        <motion.input
+          whileFocus={{
+            scale: 1.01,
+            boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.2)",
+          }}
           type="text"
           placeholder="Cari barang..."
           className="border border-blue-200 rounded-lg px-3 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
-        <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-300">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-300"
+        >
           Tambah Barang
-        </button>
+        </motion.button>
       </div>
 
       <div className="overflow-x-auto">
@@ -138,12 +186,16 @@ const MyItems = () => (
           </tbody>
         </table>
       </div>
-    </div>
-  </div>
+    </motion.div>
+  </motion.div>
 );
 
 const Profile = () => (
-  <div>
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ duration: 0.5 }}
+  >
     <h2 className="text-2xl font-bold mb-4 text-blue-900">Profil Saya</h2>
     <div className="bg-white p-6 rounded-xl shadow-md">
       <div className="flex flex-col md:flex-row items-start">
@@ -232,7 +284,7 @@ const Profile = () => (
         </div>
       </div>
     </div>
-  </div>
+  </motion.div>
 );
 
 const Dashboard: React.FC = () => {
@@ -243,14 +295,35 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 bg-gradient-to-b from-blue-50 to-white min-h-screen">
-      <h1 className="text-3xl font-bold mb-6 text-blue-900 border-b border-blue-100 pb-2">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="container mx-auto px-4 py-8 bg-gradient-to-b from-blue-50 to-white min-h-screen"
+    >
+      <motion.h1
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="text-3xl font-bold mb-6 text-blue-900 border-b border-blue-100 pb-2"
+      >
         Dashboard
-      </h1>
+      </motion.h1>
 
       <div className="flex flex-col md:flex-row">
-        <div className="md:w-1/4 mb-6 md:mb-0 md:pr-6">
-          <div className="bg-white rounded-xl shadow-md p-4 mb-6">
+        <motion.div
+          initial={{ x: -20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="md:w-1/4 mb-6 md:mb-0 md:pr-6"
+        >
+          <motion.div
+            whileHover={{
+              y: -5,
+              boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
+            }}
+            className="bg-white rounded-xl shadow-md p-4 mb-6"
+          >
             <div className="flex items-center mb-4">
               <img
                 src="https://via.placeholder.com/50"
@@ -266,39 +339,35 @@ const Dashboard: React.FC = () => {
                 </p>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-white rounded-xl shadow-md overflow-hidden">
+          <motion.div className="bg-white rounded-xl shadow-md overflow-hidden">
             <nav className="flex flex-col">
-              <Link
-                to="/dashboard"
-                className="px-4 py-3 hover:bg-blue-50 border-l-4 border-transparent hover:border-blue-500 transition duration-200 text-gray-700 hover:text-blue-900"
-              >
-                Dashboard
-              </Link>
-              <Link
-                to="/dashboard/items"
-                className="px-4 py-3 hover:bg-blue-50 border-l-4 border-transparent hover:border-blue-500 transition duration-200 text-gray-700 hover:text-blue-900"
-              >
-                Barang Saya
-              </Link>
-              <Link
-                to="/dashboard/profile"
-                className="px-4 py-3 hover:bg-blue-50 border-l-4 border-transparent hover:border-blue-500 transition duration-200 text-gray-700 hover:text-blue-900"
-              >
-                Profil
-              </Link>
-              <Link
-                to="/dashboard/settings"
-                className="px-4 py-3 hover:bg-blue-50 border-l-4 border-transparent hover:border-blue-500 transition duration-200 text-gray-700 hover:text-blue-900"
-              >
-                Pengaturan
-              </Link>
+              {[
+                { path: "/dashboard", label: "Dashboard" },
+                { path: "/dashboard/items", label: "Barang Saya" },
+                { path: "/dashboard/profile", label: "Profil" },
+                { path: "/dashboard/settings", label: "Pengaturan" },
+              ].map((item, index) => (
+                <motion.div key={index}>
+                  <Link
+                    to={item.path}
+                    className="px-4 py-3 hover:bg-blue-50 border-l-4 border-transparent hover:border-blue-500 transition duration-200 text-gray-700 hover:text-blue-900 block"
+                  >
+                    {item.label}
+                  </Link>
+                </motion.div>
+              ))}
             </nav>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
-        <div className="md:w-3/4">
+        <motion.div
+          initial={{ x: 20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+          className="md:w-3/4"
+        >
           <div className="bg-white rounded-xl shadow-md p-6">
             <Routes>
               <Route path="/" element={<DashboardHome />} />
@@ -307,9 +376,9 @@ const Dashboard: React.FC = () => {
               <Route path="/settings" element={<div>Pengaturan</div>} />
             </Routes>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
