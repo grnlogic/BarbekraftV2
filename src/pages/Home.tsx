@@ -68,8 +68,8 @@ const Home: React.FC = () => {
               </h1>
               <p className="text-xl text-slate-600 mb-8 leading-relaxed">
                 Ubah barang bekas Anda menjadi kreasi berharga bersama kami
-                Platform bertenaga AI. Kurangi pemborosan, percikkan kreativitas, dan buat
-                perbedaan.
+                Platform bertenaga AI. Kurangi pemborosan, percikkan
+                kreativitas, dan buat perbedaan.
               </p>
 
               <div className="flex flex-wrap gap-5 mb-8">
@@ -88,7 +88,6 @@ const Home: React.FC = () => {
                   Telusuri Barang Bekas
                 </Link>
               </div>
-              
             </motion.div>
 
             <motion.div
@@ -126,7 +125,7 @@ const Home: React.FC = () => {
               AI-Powered Recycling Analysis
             </h2>
             <p className="text-slate-600">
-               Unggah foto barang bekas Anda dan dapatkan daur ulang kreatif
+              Unggah foto barang bekas Anda dan dapatkan daur ulang kreatif
               saran secara instan
             </p>
           </div>
@@ -143,8 +142,8 @@ const Home: React.FC = () => {
                     Upload
                   </h3>
                   <p className="text-slate-500 mb-6">
-                    Ambil foto yang jelas dari item Anda untuk mendapatkan analisis terbaik
-                    hasil
+                    Ambil foto yang jelas dari item Anda untuk mendapatkan
+                    analisis terbaik hasil
                   </p>
 
                   <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-xl">
@@ -222,8 +221,8 @@ const Home: React.FC = () => {
               Ubah Barang Bekas Anda Menjadi Karya Seni
             </h2>
             <p className="text-slate-600">
-              Platform bertenaga AI kami memudahkan untuk menemukan cara kreatif untuk
-              mendaur ulang
+              Platform bertenaga AI kami memudahkan untuk menemukan cara kreatif
+              untuk mendaur ulang
             </p>
           </div>
 
@@ -327,7 +326,8 @@ const Home: React.FC = () => {
               Barang Rekomendasi untuk Daur Ulang
             </h2>
             <p className="text-slate-600">
-              Dapatkan inspirasi dari cara kreatif ini untuk mendaur ulang barang sehari-hari
+              Dapatkan inspirasi dari cara kreatif ini untuk mendaur ulang
+              barang sehari-hari
             </p>
           </div>
 
@@ -422,9 +422,10 @@ const Home: React.FC = () => {
               Mengapa Daur Ulang Itu Penting?
             </h2>
             <p className="text-slate-600 mb-6">
-              40,17% sampah di Indonesia masih tidak terkelola. Mari jadilah bagian dari solusi!
+              40,17% sampah di Indonesia masih tidak terkelola. Mari jadilah
+              bagian dari solusi!
             </p>
-            
+
             <div className="flex justify-center">
               <Link
                 to="/waste-statistics"
@@ -434,12 +435,14 @@ const Home: React.FC = () => {
               </Link>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {/* Preview Chart Card */}
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">
               <div className="p-4">
-                <h3 className="text-lg font-semibold mb-2 text-center">Status Pengelolaan Sampah 2024</h3>
+                <h3 className="text-lg font-semibold mb-2 text-center">
+                  Status Pengelolaan Sampah 2024
+                </h3>
                 <div className="flex gap-2 justify-center mb-4">
                   <div className="flex items-center">
                     <div className="w-3 h-3 bg-emerald-500 rounded-full mr-1"></div>
@@ -454,16 +457,23 @@ const Home: React.FC = () => {
                   {/* Ini hanya placeholder, chart sebenarnya akan tampil di halaman statistik */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <svg viewBox="0 0 100 100" className="w-32 h-32">
-                      <circle cx="50" cy="50" r="40" fill="none" stroke="#e2e8f0" strokeWidth="10" />
-                      <circle 
-                        cx="50" 
-                        cy="50" 
-                        r="40" 
-                        fill="none" 
-                        stroke="#10b981" 
-                        strokeWidth="10" 
-                        strokeDasharray="251.2" 
-                        strokeDashoffset="100.5" 
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="40"
+                        fill="none"
+                        stroke="#e2e8f0"
+                        strokeWidth="10"
+                      />
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="40"
+                        fill="none"
+                        stroke="#10b981"
+                        strokeWidth="10"
+                        strokeDasharray="251.2"
+                        strokeDashoffset="100.5"
                         transform="rotate(-90 50 50)"
                       />
                     </svg>
@@ -471,12 +481,20 @@ const Home: React.FC = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* CTA Card */}
             <div className="bg-gradient-to-r from-indigo-600 to-blue-600 p-6 rounded-xl shadow-lg text-white flex flex-col justify-center">
-              <h3 className="text-2xl font-bold mb-4">40.17% Sampah Masih Tidak Terkelola</h3>
-              <p className="mb-6">Mari jadi bagian dari solusi dengan mendaur ulang barang-barang bekas secara kreatif</p>
-              <button onClick={startNewAnalysis} className="px-6 py-3 bg-white text-indigo-600 font-medium rounded-full hover:shadow-lg transition-all duration-300 self-start">
+              <h3 className="text-2xl font-bold mb-4">
+                40.17% Sampah Masih Tidak Terkelola
+              </h3>
+              <p className="mb-6">
+                Mari jadi bagian dari solusi dengan mendaur ulang barang-barang
+                bekas secara kreatif
+              </p>
+              <button
+                onClick={startNewAnalysis}
+                className="px-6 py-3 bg-white text-indigo-600 font-medium rounded-full hover:shadow-lg transition-all duration-300 self-start"
+              >
                 Mulai Daur Ulang Sekarang
               </button>
             </div>

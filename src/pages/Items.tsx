@@ -1,9 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "../lib/supabase"; // Impor supabase client
+import { supabase, supabaseSecondary } from "../lib/supabase"; // Perbarui import
 import { motion, AnimatePresence } from "framer-motion";
 
-// Perbarui interface Item sesuai dengan struktur tabel Post di Supabase
+// Tambahkan interface untuk tutorial
+interface Tutorial {
+  id: number;
+  id_tutorial: number;
+  id_ide: number;
+  langkah_langkah: string;
+  url_video: string;
+  judul?: string;
+  bahan_dibutuhkan?: string;
+  tingkat_kesulitan?: string;
+}
+
+// Tambahkan properti untuk tutorial
 interface Item {
   id: string;
   title: string;
@@ -15,6 +27,9 @@ interface Item {
   likes?: number;
   featured?: boolean;
   cardType?: "image-only" | "with-description" | "large-feature";
+  type?: "regular" | "tutorial"; // Menandai tipe item
+  videoUrl?: string; // URL video untuk tutorial
+  bahanbahan?: string; // Bahan-bahan untuk tutorial
 }
 
 const Items: React.FC = () => {
@@ -27,7 +42,17 @@ const Items: React.FC = () => {
   const [popularItems, setPopularItems] = useState<Item[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Tambahkan state untuk tutorial
+  const [tutorials, setTutorials] = useState<Tutorial[]>([]);
+  const [loadingTutorials, setLoadingTutorials] = useState<boolean>(true);
+  const [errorTutorials, setErrorTutorials] = useState<string | null>(null);
+
+  // Tambahkan state untuk modal video
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [currentVideoId, setCurrentVideoId] = useState("");
+
   useEffect(() => {
+    // Fungsi untuk mengambil data item
     const fetchItems = async () => {
       try {
         setLoading(true);
@@ -74,7 +99,131 @@ const Items: React.FC = () => {
       }
     };
 
+    // Fungsi baru untuk mengambil tutorial
+    const fetchTutorials = async () => {
+      try {
+        setLoadingTutorials(true);
+        console.log("Memulai pengambilan data tutorial...");
+
+        // 1. Uji koneksi dasar dulu
+        console.log("Menguji koneksi ke Supabase...");
+        const { data: testConn, error: testConnError } = await supabaseSecondary
+          .from("Tutorial")
+          .select("id")
+          .limit(1);
+
+        if (testConnError) {
+          console.error("Error koneksi dasar:", testConnError);
+          throw new Error(`Koneksi gagal: ${testConnError.message}`);
+        }
+
+        console.log("Koneksi sukses, melanjutkan dengan query tutorial...");
+
+        // 2. Ambil data tutorial
+        const { data, error } = await supabaseSecondary
+          .from("Tutorial")
+          .select("*")
+          .limit(5);
+
+        if (error) {
+          console.error("Error saat mengambil data tutorial:", error);
+          throw error;
+        }
+
+        console.log("Data tutorial berhasil diambil:", data);
+
+        // 3. Siapkan struktur data tutorial
+        let tutorials: Tutorial[] = [];
+
+        if (data && data.length > 0) {
+          // Kumpulkan semua ID IDE yang unik
+          const ideIds = Array.from(
+            new Set(data.map((t) => t.id_ide).filter(Boolean))
+          );
+          console.log("ID IDE yang akan dicari:", ideIds);
+
+          // 4. Ambil data IDE Kerajinan secara terpisah (jika ada ID)
+          let ideData: { [key: string]: any } = {};
+
+          if (ideIds.length > 0) {
+            const { data: ideResult, error: ideError } = await supabaseSecondary
+              .from("Ide_Kerajinan")
+              .select("*")
+              .in("id", ideIds);
+
+            if (ideError) {
+              console.error(
+                "Error saat mengambil data Ide_Kerajinan:",
+                ideError
+              );
+            } else if (ideResult) {
+              console.log("Data Ide_Kerajinan berhasil diambil:", ideResult);
+              // Buat map dari id ke data ide
+              ideData = ideResult.reduce((acc, ide) => {
+                acc[ide.id] = ide;
+                return acc;
+              }, {});
+            }
+          }
+
+          // 5. Gabungkan data tutorial dengan ide kerajinan
+          tutorials = data.map((tutorial) => {
+            const ideInfo = tutorial.id_ide ? ideData[tutorial.id_ide] : null;
+
+            return {
+              id: tutorial.id,
+              id_tutorial: tutorial.id_tutorial,
+              id_ide: tutorial.id_ide,
+              langkah_langkah: tutorial.langkah_langkah || "",
+              url_video: tutorial.url_video || "",
+              judul: ideInfo?.judul || "Tutorial Tanpa Judul",
+              bahan_dibutuhkan:
+                ideInfo?.bahan_dibutuhkan || "Tidak ada informasi bahan",
+              tingkat_kesulitan: ideInfo?.tingkat_kesulitan || "Pemula",
+            };
+          });
+        }
+
+        setTutorials(tutorials);
+
+        // Tambahkan tutorial ke dalam galeri utama
+        setItems((prevItems) => {
+          // Convert tutorial to Item format
+          const tutorialItems: Item[] = tutorials.map((tutorial, index) => {
+            const videoId = getYoutubeID(tutorial.url_video);
+            return {
+              id: `tutorial-${tutorial.id}`,
+              title: tutorial.judul ?? "Tutorial Tanpa Judul",
+              description: tutorial.langkah_langkah || "Tutorial daur ulang barang bekas",
+              imageUrl: videoId 
+                ? `https://img.youtube.com/vi/${videoId}/0.jpg`
+                : "https://via.placeholder.com/600x400?text=Tutorial",
+              condition: tutorial.tingkat_kesulitan ?? "Pemula",
+              createdAt: new Date().toISOString(),
+              username: "Barbekraft",
+              likes: 0,
+              featured: index === 0, // Jadikan tutorial pertama sebagai featured
+              cardType: "with-description",
+              type: "tutorial", // Menandai ini adalah tutorial
+              videoUrl: tutorial.url_video, // Tambahkan url video ke item
+              bahanbahan: tutorial.bahan_dibutuhkan ?? "" // Pastikan string, bukan undefined
+            };
+          });
+
+          return [...prevItems, ...tutorialItems];
+        });
+      } catch (err) {
+        console.error("Gagal mengambil tutorial:", err);
+        setErrorTutorials(
+          "Gagal memuat data tutorial dari Supabase. Silakan coba lagi nanti."
+        );
+      } finally {
+        setLoadingTutorials(false);
+      }
+    };
+
     fetchItems();
+    fetchTutorials(); // Panggil fungsi untuk mengambil tutorial
   }, []);
 
   const openModal = (item: Item) => {
@@ -96,6 +245,113 @@ const Items: React.FC = () => {
     if (e.target === e.currentTarget) {
       closeModal();
     }
+  };
+
+  // Fungsi untuk membuka modal video
+  const openVideoModal = (videoUrl: string) => {
+    const videoId = getYoutubeID(videoUrl);
+    if (videoId) {
+      setCurrentVideoId(videoId);
+      setVideoModalOpen(true);
+    }
+  };
+
+  // Fungsi untuk mengekstrak ID video dari URL YouTube
+  const getYoutubeID = (url: string) => {
+    if (!url) return "";
+
+    const regExp =
+      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return match && match[2].length === 11 ? match[2] : "";
+  };
+
+  // Fungsi untuk menampilkan kartu tutorial
+  const renderTutorialCard = (tutorial: Tutorial) => {
+    const videoId = getYoutubeID(tutorial.url_video);
+
+    return (
+      <motion.div
+        key={tutorial.id}
+        whileHover={{
+          backgroundColor: "rgba(239, 246, 255, 0.9)",
+          x: 2,
+        }}
+        className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-50 cursor-pointer transition-colors duration-200"
+        onClick={() => (videoId ? openVideoModal(tutorial.url_video) : null)}
+      >
+        <div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0 bg-blue-100 flex items-center justify-center relative">
+          {videoId ? (
+            <>
+              <img
+                src={`https://img.youtube.com/vi/${videoId}/0.jpg`}
+                alt={tutorial.judul}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "https://via.placeholder.com/100?text=Tutorial";
+                }}
+              />
+              {/* Overlay play button */}
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                <svg
+                  className="w-8 h-8 text-white"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </div>
+            </>
+          ) : (
+            <svg
+              className="w-8 h-8 text-blue-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14v-4z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+              />
+            </svg>
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-medium text-gray-800 truncate flex items-center">
+            {tutorial.judul}
+            {videoId && (
+              <svg
+                className="w-4 h-4 ml-1 text-red-500"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
+              </svg>
+            )}
+          </h3>
+          <p className="text-xs text-gray-500 mt-1 line-clamp-1">
+            {tutorial.langkah_langkah
+              ? tutorial.langkah_langkah.substring(0, 60) + "..."
+              : "Lihat tutorial lengkap"}
+          </p>
+          <div className="flex items-center mt-1">
+            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+              {tutorial.tingkat_kesulitan}
+            </span>
+          </div>
+        </div>
+      </motion.div>
+    );
   };
 
   if (loading) {
@@ -120,6 +376,64 @@ const Items: React.FC = () => {
 
   // Fungsi bantuan untuk merender berbagai jenis kartu
   const renderCard = (item: Item, index: number) => {
+    // Cek apakah item adalah tutorial
+    if (item.type === "tutorial") {
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: index * 0.1 }}
+          whileHover={{ scale: 1.03 }}
+          className="group cursor-pointer bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl h-full flex flex-col"
+          onClick={() => item.videoUrl ? openVideoModal(item.videoUrl) : openModal(item)}
+        >
+          <div className="relative aspect-video overflow-hidden">
+            <img
+              src={item.imageUrl}
+              alt={item.title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 
+                  "https://via.placeholder.com/600x400?text=Tutorial+Video";
+              }}
+            />
+            {/* Overlay play button untuk tutorial video */}
+            {item.videoUrl && (
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                <svg className="w-16 h-16 text-white opacity-80" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </div>
+            )}
+            <div className="absolute top-2 right-2">
+              <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                Tutorial
+              </span>
+            </div>
+          </div>
+          <div className="p-4 flex-1 flex flex-col">
+            <h3 className="font-semibold mb-2 text-gray-800 group-hover:text-blue-600 line-clamp-2">
+              {item.title}
+            </h3>
+            <p className="text-sm text-gray-600 line-clamp-2 mb-4 flex-grow">
+              {item.description}
+            </p>
+            <div className="flex justify-between items-center">
+              <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                {item.condition}
+              </span>
+              {item.bahanbahan && (
+                <span className="text-xs text-gray-500">
+                  Bahan: {item.bahanbahan.split(',')[0]}...
+                </span>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      );
+    }
+    
+    // Kode untuk item normal yang sudah ada
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -147,7 +461,7 @@ const Items: React.FC = () => {
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.src =
-                "https://via.placeholder.com/300?text=Tidak+Ada+Gambar";
+                "https://via.placeholder.com/600x400?text=Tidak+Ada+Gambar";
             }}
           />
         </div>
@@ -241,7 +555,14 @@ const Items: React.FC = () => {
   // Filter item berdasarkan filter yang dipilih
   const filteredItems = items.filter(
     (item) =>
-      (activeFilter === "all" ? true : item.condition === activeFilter) &&
+      (activeFilter === "all" ? 
+        true : 
+        activeFilter === "Tutorial" ?
+          // Jika filter 'Tutorial' dipilih, tampilkan hanya tutorial
+          item.type === "tutorial" :
+          // Untuk filter kondisi lainnya
+          item.type !== "tutorial" && item.condition === activeFilter
+      ) &&
       (searchTerm === ""
         ? true
         : item.title.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -491,6 +812,61 @@ const Items: React.FC = () => {
                 </motion.div>
               </motion.div>
 
+              {/* Tutorial Section - NEW */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="bg-white rounded-xl shadow-sm p-4"
+              >
+                <h3 className="text-lg font-semibold mb-3 text-gray-800">
+                  Tutorial Daur Ulang
+                </h3>
+
+                {loadingTutorials ? (
+                  <div className="flex justify-center items-center h-24">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                  </div>
+                ) : errorTutorials ? (
+                  <div className="text-sm text-red-500 p-3">
+                    {errorTutorials}
+                  </div>
+                ) : tutorials.length === 0 ? (
+                  <div className="text-sm text-gray-500 p-3 text-center">
+                    Belum ada tutorial tersedia.
+                  </div>
+                ) : (
+                  <motion.div
+                    className="space-y-2"
+                    variants={{
+                      hidden: { opacity: 0 },
+                      visible: {
+                        opacity: 1,
+                        transition: {
+                          staggerChildren: 0.1,
+                        },
+                      },
+                    }}
+                    initial="hidden"
+                    animate="visible"
+                  >
+                    {tutorials.map((tutorial) => renderTutorialCard(tutorial))}
+
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      className="mt-3 text-center"
+                    >
+                      <Link
+                        to="/tutorials"
+                        className="text-blue-600 text-sm font-medium hover:underline"
+                      >
+                        Lihat Semua Tutorial →
+                      </Link>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </motion.div>
+
               {/* Kotak Bantuan */}
               <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-sm p-5 text-white">
                 <h3 className="text-lg font-semibold mb-2">
@@ -699,6 +1075,39 @@ const Items: React.FC = () => {
                     Lihat Detail Barang
                   </a>
                 </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal Video YouTube */}
+      <AnimatePresence>
+        {videoModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
+            onClick={() => setVideoModalOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="bg-white rounded-xl overflow-hidden w-full max-w-3xl"
+            >
+              <div className="relative pb-[56.25%]">
+                <iframe
+                  src={`https://www.youtube.com/embed/${currentVideoId}?autoplay=1`}
+                  title="YouTube video player"
+                  className="absolute inset-0 w-full h-full"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
               </div>
             </motion.div>
           </motion.div>
