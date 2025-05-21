@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import emailjs from "@emailjs/browser";
 
 const Contact: React.FC = () => {
+  const form = useRef<HTMLFormElement>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -25,18 +27,33 @@ const Contact: React.FC = () => {
     setIsSubmitting(true);
     setSubmitError(null);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitSuccess(true);
-      // Reset form
-      setFormData({
-        name: "",
-        email: "",
-        subject: "",
-        message: "",
+    // Gunakan EmailJS untuk mengirim email
+    emailjs
+      .sendForm(
+        "service_6arcyf1", // Ganti dengan Service ID dari EmailJS
+        "template_ar34opn", // Ganti dengan Template ID dari EmailJS
+        form.current as HTMLFormElement,
+        "yn6i5JwYfqT_KiN2r" // Ganti dengan Public Key dari EmailJS
+      )
+      .then((result) => {
+        console.log("Email terkirim!", result.text);
+        setIsSubmitting(false);
+        setSubmitSuccess(true);
+        // Reset form
+        setFormData({
+          name: "",
+          email: "",
+          subject: "",
+          message: "",
+        });
+      })
+      .catch((error) => {
+        console.error("Terjadi kesalahan:", error.text);
+        setIsSubmitting(false);
+        setSubmitError(
+          "Terjadi kesalahan saat mengirim pesan. Silakan coba lagi."
+        );
       });
-    }, 1500);
   };
 
   return (
@@ -161,7 +178,7 @@ const Contact: React.FC = () => {
                 </span>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form ref={form} onSubmit={handleSubmit} className="space-y-4">
                 {submitError && (
                   <div
                     className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative"

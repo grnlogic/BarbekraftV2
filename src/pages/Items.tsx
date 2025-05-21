@@ -217,9 +217,12 @@ const Items: React.FC = () => {
   ];
 
   // Filter item berdasarkan filter yang dipilih
-  const filteredItems = items.filter((item) =>
-    (activeFilter === "all" ? true : item.condition === activeFilter) &&
-    (searchTerm === "" ? true : item.title.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredItems = items.filter(
+    (item) =>
+      (activeFilter === "all" ? true : item.condition === activeFilter) &&
+      (searchTerm === ""
+        ? true
+        : item.title.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -529,11 +532,14 @@ const Items: React.FC = () => {
                     {selectedItem.condition}
                   </span>
                   <span className="text-gray-500 text-sm">
-                    {new Date(selectedItem.createdAt).toLocaleDateString("id-ID", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                    {new Date(selectedItem.createdAt).toLocaleDateString(
+                      "id-ID",
+                      {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      }
+                    )}
                   </span>
                 </div>
               </div>
