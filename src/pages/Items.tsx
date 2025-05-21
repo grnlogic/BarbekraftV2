@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { itemsAPI } from "../services/api";
+import { supabase } from "../lib/supabase"; // Impor supabase client
 
+// Perbarui interface Item sesuai dengan struktur tabel Post di Supabase
 interface Item {
   id: string;
   title: string;
@@ -9,173 +10,11 @@ interface Item {
   imageUrl: string;
   condition: string;
   createdAt: string;
-  username?: string; // Ditambahkan untuk tampilan mirip Instagram
-  likes?: number; // Ditambahkan untuk tampilan mirip Instagram
-  featured?: boolean; // Tambahkan tanda featured untuk item yang lebih besar
-  cardType?: "image-only" | "with-description" | "large-feature"; // Jenis kartu yang berbeda
+  username?: string;
+  likes?: number;
+  featured?: boolean;
+  cardType?: "image-only" | "with-description" | "large-feature";
 }
-
-// Data contoh jika API belum siap
-const mockItems: Item[] = [
-  {
-    id: "1",
-    title: "Botol Plastik Bekas",
-    description:
-      "Botol plastik 1.5L dalam kondisi bersih, bisa untuk kerajinan atau pot tanaman.",
-    imageUrl:
-      "https://images.pexels.com/photos/802221/pexels-photo-802221.jpeg?auto=compress&cs=tinysrgb&w=600",
-    condition: "Baik",
-    createdAt: "2023-09-15",
-    username: "eco_crafter",
-    likes: 45,
-    featured: true,
-    cardType: "large-feature",
-  },
-  {
-    id: "2",
-    title: "Kardus Bekas",
-    description:
-      "Kardus ukuran sedang, cocok untuk membuat organizer rumah tangga atau kerajinan karton.",
-    imageUrl:
-      "https://images.pexels.com/photos/4498142/pexels-photo-4498142.jpeg?auto=compress&cs=tinysrgb&w=600",
-    condition: "Sangat Baik",
-    createdAt: "2023-09-18",
-    username: "recycled_house",
-    likes: 32,
-    cardType: "with-description",
-  },
-  {
-    id: "3",
-    title: "Kaleng Bekas",
-    description:
-      "Kaleng aluminium bekas minuman, bersih dan tidak berkarat, ideal untuk kerajinan tangan.",
-    imageUrl:
-      "https://images.pexels.com/photos/2499790/pexels-photo-2499790.jpeg?auto=compress&cs=tinysrgb&w=600",
-    condition: "Baik",
-    createdAt: "2023-09-20",
-    username: "tin_artist",
-    likes: 18,
-  },
-  {
-    id: "4",
-    title: "Kain Perca",
-    description:
-      "Potongan kain perca berbagai warna, cocok untuk kerajinan quilting atau aksesoris.",
-    imageUrl:
-      "https://images.pexels.com/photos/1266139/pexels-photo-1266139.jpeg?auto=compress&cs=tinysrgb&w=600",
-    condition: "Sangat Baik",
-    createdAt: "2023-09-22",
-    username: "fabric_dreams",
-    likes: 63,
-  },
-  {
-    id: "5",
-    title: "Ban Sepeda Bekas",
-    description:
-      "Ban sepeda bekas dalam kondisi bagus, bisa dibuat kursi, ayunan, atau hiasan dinding.",
-    imageUrl:
-      "https://images.pexels.com/photos/5466254/pexels-photo-5466254.jpeg?auto=compress&cs=tinysrgb&w=600",
-    condition: "Layak Pakai",
-    createdAt: "2023-09-25",
-    username: "cycle_repurpose",
-    likes: 27,
-  },
-  {
-    id: "6",
-    title: "Kayu Palet Bekas",
-    description:
-      "Kayu palet bekas import, kondisi kuat dan kokoh, cocok untuk furniture DIY.",
-    imageUrl:
-      "https://images.pexels.com/photos/4946819/pexels-photo-4946819.jpeg?auto=compress&cs=tinysrgb&w=600",
-    condition: "Baik",
-    createdAt: "2023-09-27",
-    username: "wood_worker",
-    likes: 91,
-  },
-  {
-    id: "7",
-    title: "Kertas Bekas",
-    description:
-      "Kertas bekas cetakan dalam kondisi baik satu sisi, cocok untuk kerajinan origami atau daur ulang kertas.",
-    imageUrl:
-      "https://images.pexels.com/photos/351284/pexels-photo-351284.jpeg?auto=compress&cs=tinysrgb&w=600",
-    condition: "Layak Pakai",
-    createdAt: "2023-09-28",
-    username: "paper_craft",
-    likes: 14,
-    featured: true,
-    cardType: "large-feature",
-  },
-  {
-    id: "8",
-    title: "Botol Kaca Bekas",
-    description:
-      "Botol kaca bekas minuman, bersih dan tidak pecah, cocok untuk vas bunga atau lampu hias.",
-    imageUrl:
-      "https://images.pexels.com/photos/3640648/pexels-photo-3640648.jpeg?auto=compress&cs=tinysrgb&w=600",
-    condition: "Sangat Baik",
-    createdAt: "2023-10-01",
-    username: "glass_upcycler",
-    likes: 52,
-  },
-  {
-    id: "9",
-    title: "Jerigen Plastik",
-    description:
-      "Jerigen plastik 5L, bersih dan tidak rusak, bisa dibuat pot tanaman atau tempat penyimpanan.",
-    imageUrl:
-      "https://images.pexels.com/photos/5742752/pexels-photo-5742752.jpeg?auto=compress&cs=tinysrgb&w=600",
-    condition: "Baik",
-    createdAt: "2023-10-03",
-    username: "container_craft",
-    likes: 19,
-  },
-];
-
-// Tambahkan berbagai jenis item untuk menampilkan gaya kartu yang berbeda
-mockItems.push(
-  {
-    id: "10",
-    title: "Workshop Kerajinan Lampu dari Kaleng",
-    description:
-      "Tutorial cara membuat lampu hias dari kaleng bekas. Ikuti langkah-langkah mudah ini untuk membuat rumah Anda lebih indah dengan barang daur ulang.",
-    imageUrl:
-      "https://images.pexels.com/photos/1329711/pexels-photo-1329711.jpeg?auto=compress&cs=tinysrgb&w=600",
-    condition: "Tutorial",
-    createdAt: "2023-10-05",
-    username: "craft_workshop",
-    likes: 128,
-    featured: true,
-    cardType: "with-description",
-  },
-  {
-    id: "11",
-    title: "Furniture dari Kayu Palet",
-    description:
-      "Koleksi furniture unik yang seluruhnya dibuat dari kayu palet bekas. Meja, kursi, dan rak buku yang ramah lingkungan dan bergaya industrial modern.",
-    imageUrl:
-      "https://images.pexels.com/photos/2079249/pexels-photo-2079249.jpeg?auto=compress&cs=tinysrgb&w=600",
-    condition: "Showcase",
-    createdAt: "2023-10-08",
-    username: "eco_furniture",
-    likes: 215,
-    featured: true,
-    cardType: "large-feature",
-  },
-  {
-    id: "12",
-    title: "Pot Tanaman dari Ban Bekas",
-    description:
-      "Ban bekas yang diubah menjadi pot tanaman warna-warni. Sempurna untuk taman Anda.",
-    imageUrl:
-      "https://images.pexels.com/photos/6913135/pexels-photo-6913135.jpeg?auto=compress&cs=tinysrgb&w=600",
-    condition: "Baik",
-    createdAt: "2023-10-10",
-    username: "green_thumb",
-    likes: 87,
-    cardType: "with-description",
-  }
-);
 
 const Items: React.FC = () => {
   const [items, setItems] = useState<Item[]>([]);
@@ -185,32 +24,51 @@ const Items: React.FC = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [popularItems, setPopularItems] = useState<Item[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        // Uncomment ini ketika API sudah siap
-        // const response = await itemsAPI.getAllItems();
-        // setItems(response.data);
+        setLoading(true);
 
-        // Menggunakan data contoh untuk sementara
-        setItems(mockItems);
+        // Mengambil data dari tabel Post di Supabase
+        const { data, error } = await supabase
+          .from("Post")
+          .select("*")
+          .order("createdAt", { ascending: false });
 
-        // Simulasi penundaan API
-        setTimeout(() => {
-          setLoading(false);
-        }, 800);
+        if (error) {
+          console.error("Error details:", error);
+          throw error;
+        }
 
-        // Atur item populer - temukan 3 item teratas berdasarkan likes
-        setTimeout(() => {
-          const sorted = [...mockItems].sort(
-            (a, b) => (b.likes || 0) - (a.likes || 0)
-          );
-          setPopularItems(sorted.slice(0, 3));
-        }, 800);
+        if (data) {
+          // Memetakan data dari Supabase ke format yang digunakan aplikasi
+          const mappedItems: Item[] = data.map((post) => ({
+            id: post.id.toString(),
+            title: post.postText.substring(0, 50) || "Barang Bekas",
+            description: post.postText || "Tidak ada deskripsi",
+            imageUrl:
+              post.media ||
+              "https://dummyimage.com/600x400/cccccc/ffffff&text=Tidak+Ada+Gambar",
+            condition: "Baik", // Default value, sesuaikan jika perlu
+            createdAt: post.createdAt,
+            username: post.authorId || "Pengguna",
+            likes: 0, // Default likes to 0 instead of random
+            featured: false,
+            cardType: "image-only", // Simplified to just use image-only by default
+          }));
+
+          setItems(mappedItems);
+
+          // Set item populer - 3 item teratas berdasarkan tanggal
+          const sorted = [...mappedItems].slice(0, 3);
+          setPopularItems(sorted);
+        }
       } catch (err) {
         console.error("Gagal mengambil item:", err);
-        setError("Gagal memuat item. Silakan coba lagi nanti.");
+        setError("Gagal memuat data dari Supabase. Silakan coba lagi nanti.");
+      } finally {
         setLoading(false);
       }
     };
@@ -261,136 +119,44 @@ const Items: React.FC = () => {
 
   // Fungsi bantuan untuk merender berbagai jenis kartu
   const renderCard = (item: Item) => {
-    switch (item.cardType) {
-      case "large-feature":
-        return (
-          <div
-            className="group cursor-pointer relative rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 h-full"
-            onClick={() => openModal(item)}
-          >
-            <div className="aspect-[16/9] md:aspect-[21/9] h-full">
-              <img
-                src={item.imageUrl}
-                alt={item.title}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src =
-                    "https://via.placeholder.com/600x400?text=Tidak+Ada+Gambar";
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-60 group-hover:opacity-70 transition-opacity duration-300"></div>
-
-              <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                <div className="flex items-center space-x-2 mb-2">
-                  <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
-                    {item.username?.[0].toUpperCase() || "P"}
-                  </div>
-                  <p className="font-medium text-sm">{item.username}</p>
-                </div>
-                <h3 className="text-2xl font-bold mb-2 group-hover:text-blue-300 transition-colors">
-                  {item.title}
-                </h3>
-                <p className="text-sm text-white/80 line-clamp-2">
-                  {item.description}
-                </p>
-                <div className="flex items-center justify-between mt-4">
-                  <span className="bg-blue-500/30 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full">
-                    {item.condition}
-                  </span>
-                  <div className="flex items-center space-x-1">
-                    <svg
-                      className="w-4 h-4 text-red-500"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span className="text-xs">{item.likes}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+    return (
+      <div
+        className="group cursor-pointer bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 h-full flex flex-col"
+        onClick={() => openModal(item)}
+      >
+        <div className="aspect-square overflow-hidden">
+          <img
+            src={item.imageUrl}
+            alt={item.title}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src =
+                "https://via.placeholder.com/300?text=Tidak+Ada+Gambar";
+            }}
+          />
+        </div>
+        <div className="p-4 flex-1 flex flex-col">
+          <h3 className="font-semibold mb-2 text-gray-800 group-hover:text-blue-600 transition-colors line-clamp-2">
+            {item.title}
+          </h3>
+          <p className="text-sm text-gray-600 line-clamp-2 mb-4 flex-grow">
+            {item.description}
+          </p>
+          <div className="flex justify-between items-center">
+            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+              {item.condition}
+            </span>
+            <span className="text-xs text-gray-500">
+              {new Date(item.createdAt).toLocaleDateString("id-ID", {
+                day: "numeric",
+                month: "short",
+              })}
+            </span>
           </div>
-        );
-
-      case "with-description":
-        return (
-          <div
-            className="group cursor-pointer bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 h-full flex flex-col"
-            onClick={() => openModal(item)}
-          >
-            <div className="aspect-square overflow-hidden">
-              <img
-                src={item.imageUrl}
-                alt={item.title}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src =
-                    "https://via.placeholder.com/300?text=Tidak+Ada+Gambar";
-                }}
-              />
-            </div>
-            <div className="p-5 flex-1 flex flex-col">
-              <h3 className="font-semibold mb-2 text-gray-800 group-hover:text-blue-600 transition-colors">
-                {item.title}
-              </h3>
-              <p className="text-sm text-gray-600 line-clamp-2 mb-4 flex-grow">
-                {item.description}
-              </p>
-              <div className="flex justify-between items-center">
-                <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                  {item.condition}
-                </span>
-                <div className="flex items-center space-x-1">
-                  <svg
-                    className="w-4 h-4 text-gray-400"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span className="text-xs text-gray-500">{item.likes}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      default: // image-only atau undefined
-        return (
-          <div
-            className="relative aspect-square group cursor-pointer rounded-lg overflow-hidden shadow-sm hover:shadow-md h-full"
-            onClick={() => openModal(item)}
-          >
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10"></div>
-            <img
-              src={item.imageUrl}
-              alt={item.title}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src =
-                  "https://via.placeholder.com/300?text=Tidak+Ada+Gambar";
-              }}
-            />
-            <div className="absolute bottom-0 left-0 right-0 p-3 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-20">
-              <h3 className="font-medium text-sm">{item.title}</h3>
-            </div>
-          </div>
-        );
-    }
+        </div>
+      </div>
+    );
   };
 
   // Render versi kartu yang lebih kecil untuk sidebar
@@ -452,7 +218,8 @@ const Items: React.FC = () => {
 
   // Filter item berdasarkan filter yang dipilih
   const filteredItems = items.filter((item) =>
-    activeFilter === "all" ? true : item.condition === activeFilter
+    (activeFilter === "all" ? true : item.condition === activeFilter) &&
+    (searchTerm === "" ? true : item.title.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -612,6 +379,8 @@ const Items: React.FC = () => {
                 <div className="relative">
                   <input
                     type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Cari barang bekas..."
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
@@ -760,14 +529,11 @@ const Items: React.FC = () => {
                     {selectedItem.condition}
                   </span>
                   <span className="text-gray-500 text-sm">
-                    {new Date(selectedItem.createdAt).toLocaleDateString(
-                      "id-ID",
-                      {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      }
-                    )}
+                    {new Date(selectedItem.createdAt).toLocaleDateString("id-ID", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
                   </span>
                 </div>
               </div>
@@ -830,12 +596,14 @@ const Items: React.FC = () => {
                   </span>
                 </div>
 
-                <Link
-                  to={`/items/${selectedItem.id}`}
+                <a
+                  href="https://kraftzy.vercel.app/login"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded text-center block"
                 >
                   Lihat Detail Barang
-                </Link>
+                </a>
               </div>
             </div>
           </div>

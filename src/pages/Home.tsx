@@ -324,7 +324,7 @@ const Home: React.FC = () => {
               Trending Ideas
             </span>
             <h2 className="text-3xl font-bold mb-4 text-slate-800">
-              populer barang bekas
+              Barang Rekomendasi untuk Daur Ulang
             </h2>
             <p className="text-slate-600">
               Dapatkan inspirasi dari cara kreatif ini untuk mendaur ulang barang sehari-hari

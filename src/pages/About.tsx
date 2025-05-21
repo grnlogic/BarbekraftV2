@@ -1,4 +1,8 @@
 import React from "react";
+import Fajar from "../images/Fajar.jpg";
+import Akbar from "../images/Akbar.jpeg";
+import Kevin from "../images/Kepin.jpeg";
+import Try from "../images/Try.jpeg";
 
 const About: React.FC = () => {
   return (
@@ -56,7 +60,7 @@ const About: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-4">
               <div className="text-center bg-blue-50 rounded-lg p-4 hover:shadow-md transition-all">
                 <img
-                  src="https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=300"
+                  src={Try}
                   alt="Try Apriyana Nugraha"
                   className="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-white shadow-md"
                   onError={(e) => {
@@ -79,7 +83,7 @@ const About: React.FC = () => {
 
               <div className="text-center bg-blue-50 rounded-lg p-4 hover:shadow-md transition-all">
                 <img
-                  src="https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=300"
+                  src={Kevin}
                   alt="Kevin Ibrahimovic"
                   className="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-white shadow-md"
                   onError={(e) => {
@@ -102,7 +106,7 @@ const About: React.FC = () => {
 
               <div className="text-center bg-blue-50 rounded-lg p-4 hover:shadow-md transition-all">
                 <img
-                  src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=300"
+                  src={Fajar}
                   alt="Fajar Geran Arifin"
                   className="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-white shadow-md"
                   onError={(e) => {
@@ -123,7 +127,7 @@ const About: React.FC = () => {
 
               <div className="text-center bg-blue-50 rounded-lg p-4 hover:shadow-md transition-all">
                 <img
-                  src="https://images.pexels.com/photos/1181391/pexels-photo-1181391.jpeg?auto=compress&cs=tinysrgb&w=300"
+                  src={Akbar}
                   alt="Muhamad Akbar Hidayatuloh"
                   className="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-white shadow-md"
                   onError={(e) => {
