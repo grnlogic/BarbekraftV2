@@ -2,8 +2,9 @@
 
 export interface DetectedObject {
   class: string;
-  score: number;
-  bbox?: [number, number, number, number]; // [x, y, width, height]
+  score: number | string | null;
+  bbox?: number[];
+  description?: string;
 }
 
 export interface MaterialSuggestion {
@@ -63,3 +64,4 @@ export interface ImageGenerationResponse {
   prompt: string;
   error?: string;
 }
+

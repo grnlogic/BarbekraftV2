@@ -33,7 +33,7 @@ const Navbar: React.FC = () => {
     >
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <Link to="/" className="text-xl font-bold">
-          BarbekraftV2
+          Barbekraft
         </Link>
 
         <div className="flex space-x-4">

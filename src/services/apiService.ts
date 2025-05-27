@@ -1,7 +1,6 @@
 import axios from "axios";
 import geminiService from "./geminiService";
 import openaiService from "./openaiService";
-import mlService from "./mlService";
 import objectMapping from "../utils/objectMapping";
 import envCheck from "../utils/envCheck";
 import {
@@ -132,23 +131,37 @@ class ApiService {
    * Endpoint to get craft suggestions based on detected objects
    */
   public async suggestCrafts(
-    objects: DetectedObject[]
+    objectsFromGemini: DetectedObject[]
   ): Promise<SuggestionResponse> {
     try {
-      if (!objects || !Array.isArray(objects)) {
-        console.error("Invalid objects data format:", objects);
+      if (!objectsFromGemini || !Array.isArray(objectsFromGemini)) {
+        console.error("Invalid objects data format:", objectsFromGemini);
         throw new Error("Format objek tidak valid. Harap berikan array objek.");
       }
 
-      console.log("Objek yang terdeteksi:", objects);
+      console.log(
+        "Objek dari Gemini untuk saran kerajinan:",
+        objectsFromGemini
+      );
 
-      // 1. Process objects with ML Service
-      console.log("Memproses objek dengan ML...");
-      const { enhancedObjects, materialSuggestions } =
-        await mlService.suggestCrafts(objects);
+      // Since Gemini already provides enhanced object detection, we can use the objects directly
+      const enhancedObjects = objectsFromGemini; // Assume Gemini output is already "enhanced"
 
-      console.log("Objek dengan peningkatan ML:", enhancedObjects);
-      console.log("Saran material:", materialSuggestions);
+      // Create material suggestions directly from Gemini objects using objectMapping
+      const materialSuggestions = objectsFromGemini
+        .map((obj) => ({
+          material:
+            objectMapping[obj.class?.toLowerCase()] ||
+            obj.class?.toLowerCase() ||
+            "unknown",
+          confidence: typeof obj.score === "number" ? obj.score : 0.7,
+          suggested: true,
+          detectedObjects: [obj.class],
+        }))
+        .slice(0, 5); // Take top materials
+
+      console.log("Objek (dari Gemini) untuk AI teks:", enhancedObjects);
+      console.log("Saran material untuk AI teks:", materialSuggestions);
 
       // 2. Get recommendation from AI service
       console.log(`Meminta rekomendasi dari ${this.preferredService}...`);
@@ -224,13 +237,11 @@ class ApiService {
                 : aiRecommendation.rawResponse,
           },
           materials: materialSuggestions,
-          detectedObjects: objects.map((obj) => ({
+          detectedObjects: objectsFromGemini.map((obj) => ({
             class: obj.class,
-            mappedClass: objectMapping[obj.class] || obj.class,
-            score: obj.score,
-            enhanced:
-              enhancedObjects.find((e) => e.class === obj.class)?.score ||
-              obj.score,
+            mappedClass: objectMapping[obj.class?.toLowerCase()] || obj.class,
+            score: typeof obj.score === 'number' ? obj.score : 0,
+            enhanced: typeof obj.score === 'number' ? obj.score : 0, // Since Gemini objects are already enhanced
           })),
           fullAIResponse: aiRecommendation.rawResponse,
         };
@@ -308,13 +319,11 @@ class ApiService {
                   : alternativeRecommendation.rawResponse,
             },
             materials: materialSuggestions,
-            detectedObjects: objects.map((obj) => ({
+            detectedObjects: objectsFromGemini.map((obj) => ({
               class: obj.class,
-              mappedClass: objectMapping[obj.class] || obj.class,
-              score: obj.score,
-              enhanced:
-                enhancedObjects.find((e) => e.class === obj.class)?.score ||
-                obj.score,
+              mappedClass: objectMapping[obj.class?.toLowerCase()] || obj.class,
+              score: typeof obj.score === 'number' ? obj.score : 0,
+              enhanced: typeof obj.score === 'number' ? obj.score : 0, // Since Gemini objects are already enhanced
             })),
             fullAIResponse: alternativeRecommendation.rawResponse,
           };
@@ -431,7 +440,7 @@ class ApiService {
 
       // Option 1: Use placehold.co (more reliable than placeholder.com)
       const fallbackImageUrl = `https://placehold.co/600x400/f0f0f0/2c3e50?text=${encodeURIComponent(
-        "BarbekraftV2"
+        "Barbekraft"
       )}`;
 
       // Option 2: Use a data URI as ultimate fallback (always works offline)
@@ -452,7 +461,7 @@ class ApiService {
       return {
         success: true,
         imageUrl:
-          "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNHB4IiBmaWxsPSIjMmMzZTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSI+QmFyYmVrcmFmdFYyIEZhbGxiYWNrPC90ZXh0Pjwvc3ZnPg==",
+          "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgeG1zbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNHB4IiBmaWxsPSIjMmMzZTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSI+QmFyYmVrcmFmdFYyIEZhbGxiYWNrPC90ZXh0Pjwvc3ZnPg==",
         source: "fallback",
         prompt: prompt,
       };

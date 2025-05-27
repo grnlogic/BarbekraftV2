@@ -1,8 +1,7 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef } from "react";
+import { imageAnalysisAPI } from "../../services/api";
 import { apiService } from "../../services";
 import { DetectedObject, SuggestionResponse } from "../../types";
-import * as tf from "@tensorflow/tfjs";
-import "@tensorflow/tfjs-backend-webgl";
 
 interface ImageUploaderProps {
   onProcessingComplete?: (result: SuggestionResponse) => void;
@@ -23,140 +22,106 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
 
-  // Load COCO-SSD model
-  const [model, setModel] = useState<any>(null);
-  const [isModelLoading, setIsModelLoading] = useState<boolean>(false);
-
-  // Load the TensorFlow model when needed
-  const loadModel = useCallback(async () => {
-    try {
-      setIsModelLoading(true);
-      setProcessStatus("Loading TensorFlow object detection model...");
-
-      // Dynamic import of COCO-SSD to reduce initial bundle size
-      const cocoSsd = await import("@tensorflow-models/coco-ssd");
-      const loadedModel = await cocoSsd.load();
-
-      setModel(loadedModel);
-      setIsModelLoading(false);
-      setProcessStatus("Model loaded successfully");
-      return loadedModel;
-    } catch (error) {
-      console.error("Failed to load COCO-SSD model:", error);
-      setErrorMessage(
-        "Failed to load object detection model. Please try again."
-      );
-      setIsModelLoading(false);
-      if (onError) onError(error as Error);
-      return null;
-    }
-  }, [onError]);
-
   // Handle file selection
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
 
-      // Validate file type
-      if (!file.type.includes("image/")) {
-        setErrorMessage("Please select an image file.");
+      if (!file.type.startsWith("image/")) {
+        setErrorMessage("Silakan pilih file gambar.");
+        setSelectedFile(null);
+        setPreview(null);
         return;
       }
 
       setSelectedFile(file);
 
-      // Create image preview
       const reader = new FileReader();
-      reader.onload = () => {
+      reader.onloadend = () => {
         setPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
 
-      // Reset states
       setDetectedObjects([]);
       setErrorMessage(null);
+      setProcessStatus("");
     }
   };
 
-  // Process the image with TensorFlow
-  const detectObjects = async () => {
-    if (!preview || !imageRef.current) return [];
-
-    try {
-      setProcessStatus("Detecting objects in image...");
-
-      // Load model if not already loaded
-      const detectionModel = model || (await loadModel());
-      if (!detectionModel) {
-        throw new Error("Could not load object detection model");
-      }
-
-      // Prepare the image
-      const img = imageRef.current;
-
-      // Run detection
-      const predictions = await detectionModel.detect(img, 20); // Detect up to 20 objects
-
-      // Convert to our format
-      return predictions.map((prediction: any) => ({
-        class: prediction.class,
-        score: prediction.score,
-        bbox: prediction.bbox,
-      })) as DetectedObject[];
-    } catch (error) {
-      console.error("Object detection failed:", error);
-      throw error;
-    }
-  };
-
-  // Process the image with our AI pipeline
+  // Proses gambar menggunakan backend (Serverless Function)
   const processImage = async () => {
-    if (!preview || !imageRef.current) {
-      setErrorMessage("Please select an image first.");
+    if (!selectedFile) {
+      setErrorMessage("Silakan pilih gambar terlebih dahulu.");
       return;
     }
 
+    setIsProcessing(true);
+    setErrorMessage(null);
+    setProcessStatus("Mengirim gambar untuk analisis...");
+
+    const formData = new FormData();
+    formData.append("image", selectedFile);
+
     try {
-      setIsProcessing(true);
-      setErrorMessage(null);
+      // Langkah 1: Kirim gambar ke backend untuk analisis oleh Gemini
+      const analysisResponse = await imageAnalysisAPI.analyzeImage(formData);
+      const newDetectedObjects: DetectedObject[] =
+        analysisResponse.data.detectedObjects || [];
 
-      // Step 1: Detect objects
-      const detectedObjects = await detectObjects();
-      setDetectedObjects(detectedObjects);
+      setDetectedObjects(newDetectedObjects);
+      console.log("Objek terdeteksi (dari Gemini):", newDetectedObjects);
 
-      if (detectedObjects.length === 0) {
-        setErrorMessage(
-          "No objects detected in the image. Please try another image."
+      if (
+        newDetectedObjects.length === 0 ||
+        (newDetectedObjects.length === 1 &&
+          newDetectedObjects[0].class?.includes("_umum"))
+      ) {
+        let noObjectMessage =
+          "Tidak ada objek spesifik yang terdeteksi oleh AI.";
+        if (
+          newDetectedObjects.length === 1 &&
+          newDetectedObjects[0].description
+        ) {
+          noObjectMessage = `AI memberikan deskripsi: "${newDetectedObjects[0].description}". Coba gambar lain untuk deteksi objek yang lebih spesifik.`;
+        }
+        setErrorMessage(noObjectMessage);
+        setProcessStatus(
+          "Analisis selesai, namun tidak ada objek spesifik terdeteksi."
         );
         setIsProcessing(false);
+        if (onError) onError(new Error(noObjectMessage));
         return;
       }
 
-      // Log the detected objects
-      console.log("Detected objects:", detectedObjects);
-      setProcessStatus("Processing detected objects with AI...");
+      setProcessStatus(
+        "Memproses objek terdeteksi dengan AI untuk saran kerajinan..."
+      );
 
-      // Step 2: Get craft suggestions from AI
-      const suggestion = await apiService.suggestCrafts(detectedObjects);
+      // Langkah 2: Dapatkan saran kerajinan dari apiService berdasarkan objek yang dideteksi Gemini
+      const suggestion = await apiService.suggestCrafts(newDetectedObjects);
 
-      // Step 3: Send result to parent component
       if (onProcessingComplete) {
         onProcessingComplete(suggestion);
       }
 
-      setProcessStatus("Processing complete!");
+      setProcessStatus("Pemrosesan selesai!");
+    } catch (error: any) {
+      console.error("Error saat memproses gambar:", error);
+      const errMsg =
+        error.response?.data?.error ||
+        error.message ||
+        "Gagal memproses gambar. Silakan coba lagi.";
+      setErrorMessage(errMsg);
+      setProcessStatus("Gagal memproses gambar.");
+      if (onError) onError(new Error(errMsg));
+    } finally {
       setIsProcessing(false);
-    } catch (error) {
-      console.error("Error processing image:", error);
-      setErrorMessage("Failed to process image. Please try again.");
-      setIsProcessing(false);
-      if (onError) onError(error as Error);
     }
   };
 
-  // Trigger file selection dialog
   const openFileDialog = () => {
     if (fileInputRef.current) {
+      fileInputRef.current.value = "";
       fileInputRef.current.click();
     }
   };
@@ -167,7 +132,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         Unggah Gambar Barang Bekas
       </h2>
 
-      {/* Hidden file input */}
       <input
         type="file"
         ref={fileInputRef}
@@ -176,7 +140,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         className="hidden"
       />
 
-      {/* Upload button or drag-drop area */}
       <div
         onClick={openFileDialog}
         className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-green-500 transition duration-300"
@@ -185,22 +148,22 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           <div>
             <svg
               className="mx-auto h-12 w-12 text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
               stroke="currentColor"
+              fill="none"
+              viewBox="0 0 48 48"
             >
               <path
+                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                strokeWidth={2}
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={2}
-                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
               />
             </svg>
             <p className="mt-2 text-sm text-gray-600">
-              Klik untuk upload atau drag and drop
+              Klik untuk unggah atau seret dan lepas
             </p>
             <p className="mt-1 text-xs text-gray-500">
-              PNG, JPG, GIF hingga 10MB
+              PNG, JPG, GIF, WEBP, dll. hingga 10MB
             </p>
           </div>
         ) : (
@@ -210,7 +173,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
               src={preview}
               alt="Preview"
               className="max-h-64 mx-auto rounded"
-              crossOrigin="anonymous"
             />
             <button
               onClick={(e) => {
@@ -218,14 +180,18 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
                 setPreview(null);
                 setSelectedFile(null);
                 setDetectedObjects([]);
+                setErrorMessage(null);
+                setProcessStatus("");
+                if (fileInputRef.current) fileInputRef.current.value = "";
               }}
               className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1"
+              aria-label="Hapus gambar"
             >
               <svg
                 className="h-4 w-4"
+                stroke="currentColor"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke="currentColor"
               >
                 <path
                   strokeLinecap="round"
@@ -239,45 +205,56 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         )}
       </div>
 
-      {/* Error message */}
       {errorMessage && (
         <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-lg">
           {errorMessage}
         </div>
       )}
 
-      {/* Process button */}
       {preview && !isProcessing && (
         <div className="mt-4">
           <button
             onClick={processImage}
-            disabled={isProcessing || isModelLoading}
+            disabled={isProcessing}
             className="w-full py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-300 disabled:opacity-50"
           >
-            {isModelLoading ? "Loading model..." : "Proses Gambar"}
+            Proses Gambar
           </button>
         </div>
       )}
 
-      {/* Loading indicator */}
       {isProcessing && (
         <div className="mt-4 p-4 text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500 mx-auto"></div>
-          <p className="mt-2 text-sm text-gray-600">{processStatus}</p>
+          <p className="mt-2 text-sm text-gray-600">
+            {processStatus || "Memproses..."}
+          </p>
         </div>
       )}
 
-      {/* Show detected objects */}
-      {detectedObjects.length > 0 && !isProcessing && (
+      {detectedObjects.length > 0 && !isProcessing && !errorMessage && (
         <div className="mt-4">
-          <h3 className="text-lg font-medium mb-2">Objek Terdeteksi:</h3>
+          <h3 className="text-lg font-medium mb-2">
+            Objek Terdeteksi oleh AI:
+          </h3>
           <ul className="space-y-1">
             {detectedObjects.map((obj, index) => (
               <li key={index} className="flex justify-between">
-                <span className="capitalize">{obj.class}</span>
-                <span className="text-sm text-gray-500">
-                  {Math.round(obj.score * 100)}% confidence
+                <span className="capitalize">
+                  {obj.class || "Tidak Diketahui"}
                 </span>
+                {obj.score !== undefined && obj.score !== null && (
+                  <span className="text-sm text-gray-500">
+                    {typeof obj.score === "number"
+                      ? `${Math.round(obj.score * 100)}% keyakinan`
+                      : `Skor: ${obj.score}`}
+                  </span>
+                )}
+                {obj.description && (
+                  <span className="text-sm text-gray-500 italic ml-2">
+                    {obj.description}
+                  </span>
+                )}
               </li>
             ))}
           </ul>

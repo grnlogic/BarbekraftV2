@@ -73,14 +73,7 @@ const Home: React.FC = () => {
               </p>
 
               <div className="flex flex-wrap gap-5 mb-8">
-                <a
-                  href="https://kraftzy.vercel.app/login"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-blue-500 text-white font-medium rounded-full hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 transform hover:-translate-y-1"
-                >
-                  Login
-                </a>
+                
                 <Link
                   to="/items"
                   className="px-8 py-4 border-2 border-indigo-600 text-indigo-600 font-medium rounded-full hover:bg-indigo-50 transition-all duration-300"

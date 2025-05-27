@@ -20,16 +20,19 @@ class GeminiService {
   private retryDelay: number;
   private resetInterval: NodeJS.Timeout;
 
-  constructor() {
-    // Get configuration from environment or config
-    this.apiKey = envCheck.get(
-      "REACT_APP_GEMINI_API_KEY",
-      "AIzaSyCA_ZSB-WJv6uIpzLEt6C8OcQPmloIhP5g"
-    );
-    this.apiUrl =
-      process.env.REACT_APP_GEMINI_API_URL ||
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
-    this.model = process.env.REACT_APP_GEMINI_API_MODEL || "gemini-2.0-flash";
+ constructor() {
+  this.apiKey = envCheck.get("REACT_APP_GEMINI_API_KEY"); // Pastikan tidak ada string fallback di sini
+  if (!this.apiKey) {
+    console.error("KRITIKAL: REACT_APP_GEMINI_API_KEY tidak diset di .env!");
+  }
+  this.apiUrl = envCheck.get(
+    "REACT_APP_GEMINI_API_URL",
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent" // Fallback URL jika tidak diset
+  );
+  this.model = envCheck.get(
+    "REACT_APP_GEMINI_API_MODEL",
+    "gemini-2.0-flash" // Fallback model jika tidak diset
+  );
 
     // Add call tracking to prevent excessive API usage
     this.lastCallTime = 0;
@@ -93,6 +96,7 @@ class GeminiService {
       "Langkah 3: Deskripsi detail",
       "Langkah 4: Deskripsi detail",
       "Langkah 5: Deskripsi detail"
+      "dan langkah seterusnya, tidak usah berpaku 5 langkah langkah, sesuaikan dengan kompleksitas kerajinan"
     ],
     "tingkatKesulitan": "Mudah/Sedang/Sulit",
     "kategori": "Dekorasi Rumah/Alat Praktis/Mainan/Aksesoris/dll",
@@ -248,7 +252,29 @@ class GeminiService {
           rawResponse: responseText,
         };
       } catch (error: any) {
-        console.error("Error dalam komunikasi dengan Gemini:", error);
+        console.error(
+          "[geminiService] Error dalam komunikasi dengan Gemini (teks):",
+          error
+        ); // Log error LENGKAP
+        if (error.response) {
+          console.error(
+            "[geminiService] Data error dari API:",
+            JSON.stringify(error.response.data, null, 2)
+          );
+          console.error(
+            "[geminiService] Status error dari API:",
+            error.response.status
+          );
+          console.error(
+            "[geminiService] Headers error dari API:",
+            JSON.stringify(error.response.headers, null, 2)
+          );
+        } else {
+          console.error(
+            "[geminiService] Tidak ada error.response, mungkin masalah jaringan atau timeout:",
+            error.message
+          );
+        }
 
         // Handle rate limit errors with retry logic
         if (error.response && error.response.status === 429 && retries > 0) {

@@ -7,7 +7,6 @@ import Navbar from "./components/Layout/Navbar";
 import Footer from "./components/Layout/Footer";
 
 // Services
-import { mlService } from "./services";
 import { checkOpenAIStatus, checkGeminiStatus } from "./utils/checkApiStatus";
 
 // Pages
@@ -27,9 +26,7 @@ function App() {
   useEffect(() => {
     const initServices = async () => {
       try {
-        // Initialize ML model
-        console.log("Initializing ML model...");
-        await mlService.loadModel();
+    
 
         // Check API statuses
         console.log("Checking API services...");

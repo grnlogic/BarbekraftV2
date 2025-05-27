@@ -42,4 +42,14 @@ export const itemsAPI = {
     }),
 };
 
+export const imageAnalysisAPI = {
+  analyzeImage: (formData: FormData) => {
+    return axios.post("/api/analyze-image", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  },
+};
+
 export default api;
