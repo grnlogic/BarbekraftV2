@@ -50,7 +50,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         const response = await authAPI.getProfile();
         setUser(response.data);
       } catch (err) {
-        console.error("Auth check failed:", err);
         localStorage.removeItem("authToken");
       } finally {
         setLoading(false);

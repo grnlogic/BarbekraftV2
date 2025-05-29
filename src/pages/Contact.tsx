@@ -37,7 +37,6 @@ const Contact: React.FC = () => {
         "yn6i5JwYfqT_KiN2r" // Ganti dengan Public Key dari EmailJS
       )
       .then((result) => {
-        console.log("Email terkirim!", result.text);
         setIsSubmitting(false);
         setSubmitSuccess(true);
         // Reset form
@@ -49,7 +48,6 @@ const Contact: React.FC = () => {
         });
       })
       .catch((error) => {
-        console.error("Terjadi kesalahan:", error.text);
         setIsSubmitting(false);
         setSubmitError(
           "Terjadi kesalahan saat mengirim pesan. Silakan coba lagi."

@@ -73,7 +73,6 @@ const Home: React.FC = () => {
               </p>
 
               <div className="flex flex-wrap gap-5 mb-8">
-                
                 <Link
                   to="/items"
                   className="px-8 py-4 border-2 border-indigo-600 text-indigo-600 font-medium rounded-full hover:bg-indigo-50 transition-all duration-300"

@@ -29,16 +29,11 @@ function App() {
     
 
         // Check API statuses
-        console.log("Checking API services...");
+       
         const openAIStatus = await checkOpenAIStatus();
         const geminiStatus = await checkGeminiStatus();
 
-        console.log(
-          `OpenAI API status: ${openAIStatus ? "Available" : "Unavailable"}`
-        );
-        console.log(
-          `Gemini API status: ${geminiStatus ? "Available" : "Unavailable"}`
-        );
+      
       } catch (error) {
         console.error("Error initializing services:", error);
       }

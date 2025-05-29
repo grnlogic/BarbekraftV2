@@ -20,19 +20,16 @@ class GeminiService {
   private retryDelay: number;
   private resetInterval: NodeJS.Timeout;
 
- constructor() {
-  this.apiKey = envCheck.get("REACT_APP_GEMINI_API_KEY"); // Pastikan tidak ada string fallback di sini
-  if (!this.apiKey) {
-    console.error("KRITIKAL: REACT_APP_GEMINI_API_KEY tidak diset di .env!");
-  }
-  this.apiUrl = envCheck.get(
-    "REACT_APP_GEMINI_API_URL",
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent" // Fallback URL jika tidak diset
-  );
-  this.model = envCheck.get(
-    "REACT_APP_GEMINI_API_MODEL",
-    "gemini-2.0-flash" // Fallback model jika tidak diset
-  );
+  constructor() {
+    this.apiKey = envCheck.get("REACT_APP_GEMINI_API_KEY");
+    if (!this.apiKey) {
+      // API key not set
+    }
+    this.apiUrl = envCheck.get(
+      "REACT_APP_GEMINI_API_URL",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+    );
+    this.model = envCheck.get("REACT_APP_GEMINI_API_MODEL", "gemini-2.0-flash");
 
     // Add call tracking to prevent excessive API usage
     this.lastCallTime = 0;
@@ -45,7 +42,6 @@ class GeminiService {
     this.resetInterval = setInterval(() => {
       this.callCount = 0;
       this.callHistory = [];
-      console.log("Gemini API call counter reset");
     }, 60 * 60 * 1000); // 1 hour
 
     // Set retry configuration
@@ -120,19 +116,11 @@ class GeminiService {
 
     // Enforce minimum time between calls
     if (now - this.lastCallTime < this.minTimeBetweenCalls) {
-      console.log(
-        `API call rejected: Too soon since last call (${Math.floor(
-          (now - this.lastCallTime) / 1000
-        )}s)`
-      );
       return false;
     }
 
     // Enforce maximum calls per hour
     if (this.callCount >= this.maxCallsPerHour) {
-      console.log(
-        `API call rejected: Max call limit reached (${this.callCount}/${this.maxCallsPerHour})`
-      );
       return false;
     }
 
@@ -163,24 +151,15 @@ class GeminiService {
 
     // Validate API key availability
     if (!this.apiKey) {
-      console.error(
-        "Gemini API key not found, using hardcoded one from environment utility"
-      );
+      // API key not found
     }
 
     let retries = this.maxRetries;
 
     while (retries >= 0) {
       try {
-        console.log(
-          `Memulai request ke Gemini... (retry attempt: ${
-            this.maxRetries - retries
-          } of ${this.maxRetries})`
-        );
-
         // Create prompt for API request
         const prompt = this.createPrompt(detectedObjects, materialSuggestions);
-        console.log("Prompt untuk Gemini:", prompt);
 
         // Prepare the payload for Gemini API
         const payload = {
@@ -205,8 +184,6 @@ class GeminiService {
           timeout: 15000, // 15 second timeout
         });
 
-        console.log(`Gemini API response status: ${response.status}`);
-
         // Parse response from Gemini
         const responseText = response.data.candidates[0].content.parts[0].text;
 
@@ -223,7 +200,6 @@ class GeminiService {
             jsonResponse = this.convertTextToJson(cleanText);
           }
         } catch (jsonError) {
-          console.error("Error parsing JSON dari respons Gemini:", jsonError);
           // Convert the text response to our required JSON format
           jsonResponse = this.convertTextToJson(responseText);
         }
@@ -252,37 +228,8 @@ class GeminiService {
           rawResponse: responseText,
         };
       } catch (error: any) {
-        console.error(
-          "[geminiService] Error dalam komunikasi dengan Gemini (teks):",
-          error
-        ); // Log error LENGKAP
-        if (error.response) {
-          console.error(
-            "[geminiService] Data error dari API:",
-            JSON.stringify(error.response.data, null, 2)
-          );
-          console.error(
-            "[geminiService] Status error dari API:",
-            error.response.status
-          );
-          console.error(
-            "[geminiService] Headers error dari API:",
-            JSON.stringify(error.response.headers, null, 2)
-          );
-        } else {
-          console.error(
-            "[geminiService] Tidak ada error.response, mungkin masalah jaringan atau timeout:",
-            error.message
-          );
-        }
-
         // Handle rate limit errors with retry logic
         if (error.response && error.response.status === 429 && retries > 0) {
-          console.log(
-            `Rate limit hit (429). Single retry in ${
-              this.retryDelay / 1000
-            } seconds...`
-          );
           await this.delay(this.retryDelay);
           retries--;
           continue; // Skip to next iteration of the retry loop
@@ -290,7 +237,6 @@ class GeminiService {
 
         // If we're out of retries, provide a fallback
         if (retries <= 0) {
-          console.log("Using fallback response after failed retries");
           return {
             success: true,
             aiGenerated: true,
@@ -334,8 +280,6 @@ class GeminiService {
    * Convert text response to JSON format when Gemini doesn't respond with proper JSON
    */
   private convertTextToJson(text: string): Partial<CraftRecommendation> {
-    console.log("Converting text response to JSON");
-
     // Try to extract a craft name from the text
     let craftName = "Kerajinan dari Barang Bekas";
     const nameMatch = text.match(/(?:"|\*\*|#)([^"*#]+)(?:"|\*\*|#)/);

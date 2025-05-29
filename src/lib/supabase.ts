@@ -4,8 +4,6 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 
-console.log("URL:", supabaseUrl); // Tambahkan logging untuk debugging
-console.log("Key exists:", !!supabaseAnonKey); // Cek apakah key ada (jangan tampilkan key asli)
 
 // Existing supabase client
 export const supabase = createClient(
@@ -19,5 +17,3 @@ export const supabaseSecondary = createClient(
   process.env.REACT_APP_SUPABASE_ANON_KEY_2 || ""
 );
 
-console.log("SUPABASE_URL =", supabaseUrl);
-console.log("SUPABASE_KEY =", supabaseAnonKey);

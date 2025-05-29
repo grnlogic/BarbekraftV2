@@ -40,7 +40,6 @@ class OpenAIService {
     this.resetInterval = setInterval(() => {
       this.callCount = 0;
       this.callHistory = [];
-      console.log("OpenAI API call counter reset");
     }, 60 * 60 * 1000); // 1 hour
 
     // Set retry configuration - reduce to just 1 retry
@@ -79,19 +78,11 @@ Format: {"nama":"nama_kerajinan","bahan":["bahan1","bahan2"],"langkah":["langkah
 
     // Enforce minimum time between calls
     if (now - this.lastCallTime < this.minTimeBetweenCalls) {
-      console.log(
-        `API call rejected: Too soon since last call (${Math.floor(
-          (now - this.lastCallTime) / 1000
-        )}s)`
-      );
       return false;
     }
 
     // Enforce maximum calls per hour
     if (this.callCount >= this.maxCallsPerHour) {
-      console.log(
-        `API call rejected: Max call limit reached (${this.callCount}/${this.maxCallsPerHour})`
-      );
       return false;
     }
 
@@ -122,21 +113,13 @@ Format: {"nama":"nama_kerajinan","bahan":["bahan1","bahan2"],"langkah":["langkah
 
     // Validate API key availability
     if (!this.apiKey || this.apiKey === "your_openai_api_key_here") {
-      console.warn(
-        "Using placeholder OpenAI API key - actual API calls will fail"
-      );
+      // Using placeholder API key
     }
 
     let retries = this.maxRetries; // Now equals 1
 
     while (retries >= 0) {
       try {
-        console.log(
-          `Memulai request ke OpenAI... (retry attempt: ${
-            this.maxRetries - retries
-          } of ${this.maxRetries})`
-        );
-
         // Create prompt for API request - use ultra concise version
         const prompt = this.createPrompt(detectedObjects, materialSuggestions);
 
@@ -216,15 +199,8 @@ Format: {"nama":"nama_kerajinan","bahan":["bahan1","bahan2"],"langkah":["langkah
           rawResponse: craftRecommendation,
         };
       } catch (error: any) {
-        console.error("Error dalam komunikasi dengan OpenAI:", error);
-
         // Handle rate limit errors with retry logic - now only 1 retry
         if (error.response && error.response.status === 429 && retries > 0) {
-          console.log(
-            `Rate limit hit (429). Single retry in ${
-              this.retryDelay / 1000
-            } seconds...`
-          );
           await this.delay(this.retryDelay);
           retries--;
           continue; // Skip to next iteration of the retry loop
@@ -232,7 +208,6 @@ Format: {"nama":"nama_kerajinan","bahan":["bahan1","bahan2"],"langkah":["langkah
 
         // If we're out of retries, provide a fallback
         if (retries <= 0) {
-          console.log("Using fallback response after failed retries");
           return this.getFallbackResponse();
         }
 

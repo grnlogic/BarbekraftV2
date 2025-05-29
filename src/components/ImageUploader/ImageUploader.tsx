@@ -71,20 +71,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           height: { ideal: 720 },
         },
       });
-      console.log("[React] MediaStream didapatkan:", mediaStream);
-      console.log("[React] Video tracks:", mediaStream.getVideoTracks());
 
       // Perbaiki pengecekan video tracks
       if (mediaStream.getVideoTracks().length > 0) {
-        console.log(
-          "[React] Video tracks ditemukan:",
-          mediaStream.getVideoTracks().length
-        );
+        // Video tracks available
       } else {
-        console.error(
-          "[React] Tidak ada video tracks yang ditemukan dalam MediaStream."
+        setErrorMessage(
+          "Tidak dapat mengakses kamera. Video tracks tidak tersedia."
         );
-        setErrorMessage("Tidak dapat mengakses kamera. Video tracks tidak tersedia.");
         return;
       }
 
@@ -94,22 +88,17 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       // Gunakan setTimeout untuk memastikan DOM sudah dirender
       setTimeout(() => {
         if (videoRef.current) {
-          console.log("[React] videoRef.current ditemukan, mengatur srcObject");
           videoRef.current.srcObject = mediaStream;
 
           // Tambahkan event listener untuk memastikan video berjalan
           videoRef.current.onloadedmetadata = () => {
-            console.log("[React] Video metadata loaded");
             videoRef.current?.play().catch((err) => {
-              console.error("[React] Error saat video.play():", err);
+              // Handle error silently
             });
           };
-        } else {
-          console.error("[React] videoRef.current TIDAK ditemukan setelah setTimeout.");
         }
       }, 100); // Delay 100ms untuk memastikan DOM terender
     } catch (error) {
-      console.error("[React] Error mengakses kamera:", error);
       let errorDetail = "";
       if (error instanceof Error) {
         errorDetail = error.message;
@@ -191,7 +180,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         analysisResponse.data.detectedObjects || [];
 
       setDetectedObjects(newDetectedObjects);
-      console.log("Objek terdeteksi (dari Gemini):", newDetectedObjects);
 
       if (
         newDetectedObjects.length === 0 ||
@@ -220,15 +208,43 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       );
 
       // Langkah 2: Dapatkan saran kerajinan dari apiService berdasarkan objek yang dideteksi Gemini
-      const suggestion = await apiService.suggestCrafts(newDetectedObjects);
+      const suggestionResponse = await apiService.suggestCrafts(newDetectedObjects);
 
-      if (onProcessingComplete) {
-        onProcessingComplete(suggestion);
+      if (suggestionResponse.success && suggestionResponse.suggestion) {
+        let finalSuggestion = suggestionResponse.suggestion;
+        let imageUrlForResult: string | undefined = undefined;
+
+        // Periksa apakah ada imagePrompt dan coba generate/cari gambar
+        if (finalSuggestion.imagePrompt && finalSuggestion.imagePrompt.trim() !== "") {
+          setProcessStatus("Mencari gambar ilustrasi untuk kerajinan...");
+          try {
+            const imageResult = await apiService.generateImage(finalSuggestion.imagePrompt);
+            if (imageResult.success && imageResult.imageUrl) {
+              imageUrlForResult = imageResult.imageUrl;
+            }
+          } catch (imgError) {
+            // Handle error silently
+          }
+        }
+
+        // Gabungkan hasil akhir untuk dikirim ke onProcessingComplete
+        const resultForParent = {
+          ...suggestionResponse,
+          generatedImageUrl: imageUrlForResult
+        };
+
+        if (onProcessingComplete) {
+          onProcessingComplete(resultForParent);
+        }
+
+        setProcessStatus("Pemrosesan selesai!");
+      } else {
+        // Tangani jika suggestionResponse tidak sukses atau suggestion null
+        setErrorMessage(suggestionResponse.message || "Gagal mendapatkan saran kerajinan.");
+        setProcessStatus("Gagal mendapatkan saran kerajinan.");
+        if (onError) onError(new Error(suggestionResponse.message || "Gagal mendapatkan saran kerajinan."));
       }
-
-      setProcessStatus("Pemrosesan selesai!");
     } catch (error: any) {
-      console.error("Error saat memproses gambar:", error);
       const errMsg =
         error.response?.data?.error ||
         error.message ||
@@ -294,26 +310,24 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
               muted
               className="w-full h-64 object-cover"
               onLoadedMetadata={() => {
-                console.log("[React] Video metadata loaded in component");
                 if (videoRef.current) {
-                  videoRef.current.play().catch(err => {
-                    console.error("[React] Error saat video.play() di onLoadedMetadata:", err);
+                  videoRef.current.play().catch((err) => {
+                    // Handle error silently
                   });
                 }
               }}
               onCanPlay={() => {
-                console.log("[React] Video onCanPlay triggered");
                 if (videoRef.current && videoRef.current.paused) {
-                  videoRef.current.play().catch(err => {
-                    console.error("[React] Error saat video.play() di onCanPlay:", err);
+                  videoRef.current.play().catch((err) => {
+                    // Handle error silently
                   });
                 }
               }}
               onPlay={() => {
-                console.log("[React] Video started playing");
+                // Video started playing
               }}
               onError={(e) => {
-                console.error("[React] Video error:", e);
+                // Handle video error silently
               }}
             />
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-4">

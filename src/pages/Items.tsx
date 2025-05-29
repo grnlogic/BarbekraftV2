@@ -64,7 +64,6 @@ const Items: React.FC = () => {
           .order("createdAt", { ascending: false });
 
         if (error) {
-          console.error("Error details:", error);
           throw error;
         }
 
@@ -92,7 +91,6 @@ const Items: React.FC = () => {
           setPopularItems(sorted);
         }
       } catch (err) {
-        console.error("Gagal mengambil item:", err);
         setError("Gagal memuat data dari Supabase. Silakan coba lagi nanti.");
       } finally {
         setLoading(false);
@@ -103,21 +101,16 @@ const Items: React.FC = () => {
     const fetchTutorials = async () => {
       try {
         setLoadingTutorials(true);
-        console.log("Memulai pengambilan data tutorial...");
 
         // 1. Uji koneksi dasar dulu
-        console.log("Menguji koneksi ke Supabase...");
         const { data: testConn, error: testConnError } = await supabaseSecondary
           .from("Tutorial")
           .select("id")
           .limit(1);
 
         if (testConnError) {
-          console.error("Error koneksi dasar:", testConnError);
           throw new Error(`Koneksi gagal: ${testConnError.message}`);
         }
-
-        console.log("Koneksi sukses, melanjutkan dengan query tutorial...");
 
         // 2. Ambil data tutorial
         const { data, error } = await supabaseSecondary
@@ -126,11 +119,8 @@ const Items: React.FC = () => {
           .limit(5);
 
         if (error) {
-          console.error("Error saat mengambil data tutorial:", error);
           throw error;
         }
-
-        console.log("Data tutorial berhasil diambil:", data);
 
         // 3. Siapkan struktur data tutorial
         let tutorials: Tutorial[] = [];
@@ -140,7 +130,6 @@ const Items: React.FC = () => {
           const ideIds = Array.from(
             new Set(data.map((t) => t.id_ide).filter(Boolean))
           );
-          console.log("ID IDE yang akan dicari:", ideIds);
 
           // 4. Ambil data IDE Kerajinan secara terpisah (jika ada ID)
           let ideData: { [key: string]: any } = {};
@@ -152,12 +141,8 @@ const Items: React.FC = () => {
               .in("id", ideIds);
 
             if (ideError) {
-              console.error(
-                "Error saat mengambil data Ide_Kerajinan:",
-                ideError
-              );
+              // console.error("Error saat mengambil data Ide_Kerajinan:", ideError); // Removed
             } else if (ideResult) {
-              console.log("Data Ide_Kerajinan berhasil diambil:", ideResult);
               // Buat map dari id ke data ide
               ideData = ideResult.reduce((acc, ide) => {
                 acc[ide.id] = ide;
@@ -194,8 +179,9 @@ const Items: React.FC = () => {
             return {
               id: `tutorial-${tutorial.id}`,
               title: tutorial.judul ?? "Tutorial Tanpa Judul",
-              description: tutorial.langkah_langkah || "Tutorial daur ulang barang bekas",
-              imageUrl: videoId 
+              description:
+                tutorial.langkah_langkah || "Tutorial daur ulang barang bekas",
+              imageUrl: videoId
                 ? `https://img.youtube.com/vi/${videoId}/0.jpg`
                 : "https://via.placeholder.com/600x400?text=Tutorial",
               condition: tutorial.tingkat_kesulitan ?? "Pemula",
@@ -206,14 +192,13 @@ const Items: React.FC = () => {
               cardType: "with-description",
               type: "tutorial", // Menandai ini adalah tutorial
               videoUrl: tutorial.url_video, // Tambahkan url video ke item
-              bahanbahan: tutorial.bahan_dibutuhkan ?? "" // Pastikan string, bukan undefined
+              bahanbahan: tutorial.bahan_dibutuhkan ?? "", // Pastikan string, bukan undefined
             };
           });
 
           return [...prevItems, ...tutorialItems];
         });
       } catch (err) {
-        console.error("Gagal mengambil tutorial:", err);
         setErrorTutorials(
           "Gagal memuat data tutorial dari Supabase. Silakan coba lagi nanti."
         );
@@ -385,7 +370,9 @@ const Items: React.FC = () => {
           transition={{ duration: 0.5, delay: index * 0.1 }}
           whileHover={{ scale: 1.03 }}
           className="group cursor-pointer bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl h-full flex flex-col"
-          onClick={() => item.videoUrl ? openVideoModal(item.videoUrl) : openModal(item)}
+          onClick={() =>
+            item.videoUrl ? openVideoModal(item.videoUrl) : openModal(item)
+          }
         >
           <div className="relative aspect-video overflow-hidden">
             <img
@@ -393,14 +380,18 @@ const Items: React.FC = () => {
               alt={item.title}
               className="w-full h-full object-cover"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = 
+                (e.target as HTMLImageElement).src =
                   "https://via.placeholder.com/600x400?text=Tutorial+Video";
               }}
             />
             {/* Overlay play button untuk tutorial video */}
             {item.videoUrl && (
               <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                <svg className="w-16 h-16 text-white opacity-80" viewBox="0 0 24 24" fill="currentColor">
+                <svg
+                  className="w-16 h-16 text-white opacity-80"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </div>
@@ -419,12 +410,12 @@ const Items: React.FC = () => {
               {item.description}
             </p>
             <div className="flex justify-between items-center">
-              <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+              <span className="bg-blue-500/30 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full">
                 {item.condition}
               </span>
               {item.bahanbahan && (
                 <span className="text-xs text-gray-500">
-                  Bahan: {item.bahanbahan.split(',')[0]}...
+                  Bahan: {item.bahanbahan.split(",")[0]}...
                 </span>
               )}
             </div>
@@ -432,7 +423,7 @@ const Items: React.FC = () => {
         </motion.div>
       );
     }
-    
+
     // Kode untuk item normal yang sudah ada
     return (
       <motion.div
@@ -555,14 +546,13 @@ const Items: React.FC = () => {
   // Filter item berdasarkan filter yang dipilih
   const filteredItems = items.filter(
     (item) =>
-      (activeFilter === "all" ? 
-        true : 
-        activeFilter === "Tutorial" ?
-          // Jika filter 'Tutorial' dipilih, tampilkan hanya tutorial
-          item.type === "tutorial" :
-          // Untuk filter kondisi lainnya
-          item.type !== "tutorial" && item.condition === activeFilter
-      ) &&
+      (activeFilter === "all"
+        ? true
+        : activeFilter === "Tutorial"
+        ? // Jika filter 'Tutorial' dipilih, tampilkan hanya tutorial
+          item.type === "tutorial"
+        : // Untuk filter kondisi lainnya
+          item.type !== "tutorial" && item.condition === activeFilter) &&
       (searchTerm === ""
         ? true
         : item.title.toLowerCase().includes(searchTerm.toLowerCase()))

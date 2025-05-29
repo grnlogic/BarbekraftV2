@@ -122,7 +122,7 @@ const About: React.FC = () => {
               initial="hidden"
               animate="show"
             >
-                {[
+              {[
                 {
                   img: Try,
                   name: "Try Apriyana Nugraha",
@@ -147,38 +147,38 @@ const About: React.FC = () => {
                   role: "UI/UX Designer",
                   desc: "Merancang antarmuka pengguna dan pengalaman pengguna untuk website Barbekraft yang intuitif dan menarik",
                 },
-                ].map((member, index) => (
+              ].map((member, index) => (
                 <motion.div
                   key={index}
                   variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  show: { opacity: 1, y: 0 },
+                    hidden: { opacity: 0, y: 20 },
+                    show: { opacity: 1, y: 0 },
                   }}
                   whileHover={{
-                  y: -10,
-                  boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
+                    y: -10,
+                    boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
                   }}
                   className="text-center bg-blue-50 rounded-lg p-4 hover:shadow-md transition-all"
                 >
                   <motion.img
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                  src={member.img}
-                  alt={member.name}
-                  className="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-white shadow-md"
-                  onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src =
-                  "https://via.placeholder.com/150?text=Developer";
-                  }}
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                    src={member.img}
+                    alt={member.name}
+                    className="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-white shadow-md"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src =
+                        "https://via.placeholder.com/150?text=Developer";
+                    }}
                   />
                   <h3 className="font-bold text-lg text-blue-900">
-                  {member.name}
+                    {member.name}
                   </h3>
                   <p className="text-blue-700 font-medium">{member.role}</p>
                   <p className="text-gray-600 text-sm mt-2">{member.desc}</p>
                 </motion.div>
-                ))}
+              ))}
             </motion.div>
           </div>
         </motion.div>

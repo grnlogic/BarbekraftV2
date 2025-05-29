@@ -20,10 +20,6 @@ class ApiService {
 
     // Log available environment variables to help with debugging
     envCheck.logAvailable();
-
-    console.log(
-      `API Service initialized with preferred AI: ${this.preferredService}`
-    );
   }
 
   /**
@@ -135,14 +131,8 @@ class ApiService {
   ): Promise<SuggestionResponse> {
     try {
       if (!objectsFromGemini || !Array.isArray(objectsFromGemini)) {
-        console.error("Invalid objects data format:", objectsFromGemini);
         throw new Error("Format objek tidak valid. Harap berikan array objek.");
       }
-
-      console.log(
-        "Objek dari Gemini untuk saran kerajinan:",
-        objectsFromGemini
-      );
 
       // Since Gemini already provides enhanced object detection, we can use the objects directly
       const enhancedObjects = objectsFromGemini; // Assume Gemini output is already "enhanced"
@@ -160,62 +150,31 @@ class ApiService {
         }))
         .slice(0, 5); // Take top materials
 
-      console.log("Objek (dari Gemini) untuk AI teks:", enhancedObjects);
-      console.log("Saran material untuk AI teks:", materialSuggestions);
-
-      // 2. Get recommendation from AI service
-      console.log(`Meminta rekomendasi dari ${this.preferredService}...`);
-
-      // Set up structured logging for AI request
-      console.log("AI Request Parameters:", {
-        service: this.preferredService,
-        objectCount: enhancedObjects.length,
-        materialCount: materialSuggestions.length,
-        timestamp: new Date().toISOString(),
-      });
-
       // Use the appropriate AI service based on configuration
       let aiRecommendation;
       try {
         if (this.preferredService === "gemini") {
-          console.log("Calling Gemini service...");
           aiRecommendation = await geminiService.getCraftRecommendation(
             enhancedObjects,
             materialSuggestions
           );
-          console.log("Gemini service response received");
         } else {
-          console.log("Calling OpenAI service...");
           aiRecommendation = await openaiService.getCraftRecommendation(
             enhancedObjects,
             materialSuggestions
           );
-          console.log("OpenAI service response received");
         }
 
-        console.log(
-          `AI Recommendation success status: ${aiRecommendation.success}`
-        );
-
         if (!aiRecommendation.success || !aiRecommendation.recommendation) {
-          console.error("AI recommendation failed or returned empty response");
           throw new Error(
             "AI tidak dapat memberikan rekomendasi. Silakan coba lagi dengan objek yang berbeda."
           );
         }
 
-        // Log the raw recommendation data
-        console.log("AI Recommendation data:", {
-          nama: aiRecommendation.recommendation.nama,
-          kategori: aiRecommendation.recommendation.kategori,
-          tingkatKesulitan: aiRecommendation.recommendation.tingkatKesulitan,
-          bahanCount: aiRecommendation.recommendation.bahan.length,
-          langkahCount: aiRecommendation.recommendation.langkah.length,
-        });
-
         // 3. Return the complete recommendation to client
         return {
           success: true,
+          message: "Rekomendasi kerajinan berhasil digenerate",
           suggestion: {
             ...aiRecommendation.recommendation,
             isAI: true,
@@ -240,34 +199,20 @@ class ApiService {
           detectedObjects: objectsFromGemini.map((obj) => ({
             class: obj.class,
             mappedClass: objectMapping[obj.class?.toLowerCase()] || obj.class,
-            score: typeof obj.score === 'number' ? obj.score : 0,
-            enhanced: typeof obj.score === 'number' ? obj.score : 0, // Since Gemini objects are already enhanced
+            score: typeof obj.score === "number" ? obj.score : 0,
+            enhanced: typeof obj.score === "number" ? obj.score : 0, // Since Gemini objects are already enhanced
           })),
           fullAIResponse: aiRecommendation.rawResponse,
         };
       } catch (aiError: any) {
-        console.error(
-          `Error dalam komunikasi dengan ${this.preferredService}:`,
-          aiError
-        );
-        console.error("Error stack:", aiError.stack);
-
         // Log details about the error
         if (aiError.response) {
-          console.error("API response error:", {
-            status: aiError.response.status,
-            data: aiError.response.data,
-            headers: aiError.response.headers,
-          });
+          // API response error details available
         }
 
         // Try the alternative AI service if the first one fails
         const alternativeService =
           this.preferredService === "gemini" ? "openai" : "gemini";
-
-        console.log(
-          `Mencoba dengan layanan alternatif: ${alternativeService}...`
-        );
 
         try {
           const alternativeRecommendation =
@@ -281,10 +226,6 @@ class ApiService {
                   materialSuggestions
                 );
 
-          console.log(
-            `Rekomendasi dari ${alternativeService} berhasil diterima`
-          );
-
           if (
             !alternativeRecommendation.success ||
             !alternativeRecommendation.recommendation
@@ -293,10 +234,10 @@ class ApiService {
               "Alternative AI service also failed to provide recommendation"
             );
           }
-
           // Return the recommendation from the alternative service
           return {
             success: true,
+            message: `Rekomendasi kerajinan berhasil digenerate menggunakan ${alternativeService}`,
             suggestion: {
               ...alternativeRecommendation.recommendation,
               isAI: true,
@@ -322,24 +263,18 @@ class ApiService {
             detectedObjects: objectsFromGemini.map((obj) => ({
               class: obj.class,
               mappedClass: objectMapping[obj.class?.toLowerCase()] || obj.class,
-              score: typeof obj.score === 'number' ? obj.score : 0,
-              enhanced: typeof obj.score === 'number' ? obj.score : 0, // Since Gemini objects are already enhanced
+              score: typeof obj.score === "number" ? obj.score : 0,
+              enhanced: typeof obj.score === "number" ? obj.score : 0, // Since Gemini objects are already enhanced
             })),
             fullAIResponse: alternativeRecommendation.rawResponse,
           };
         } catch (alternativeError) {
-          console.error(
-            `Kedua layanan AI gagal memberikan rekomendasi:`,
-            alternativeError
-          );
           throw new Error(
             "Semua layanan AI gagal memberikan rekomendasi. Silakan coba lagi nanti."
           );
         }
       }
     } catch (error: any) {
-      console.error("Error in suggestCrafts:", error);
-      console.error("Stack trace:", error.stack);
       throw error;
     }
   }
@@ -347,38 +282,28 @@ class ApiService {
   /**
    * Generate an image based on a prompt
    */
-  public async generateImage(prompt: string): Promise<ImageGenerationResponse> {
+  public async generateImage(
+    searchQuery: string
+  ): Promise<ImageGenerationResponse> {
     try {
-      if (!prompt) {
-        console.error("Empty prompt provided to generateImage");
-        throw new Error("Prompt tidak boleh kosong");
+      if (!searchQuery) {
+        throw new Error("Kata kunci pencarian tidak boleh kosong");
       }
 
-      console.log("Generating image for prompt:", prompt);
+      // Encode kueri untuk URL
+      const encodedQuery = encodeURIComponent(searchQuery);
 
-      // Extract keywords for image search
-      const keywords = prompt.split(" ").slice(0, 3).join(" ");
-      console.log("Searching for image with keywords:", keywords);
-
-      // Try Pinterest API first
+      // --- Coba Pinterest (via lolhuman) ---
       try {
-        const apiKey =
-          process.env.REACT_APP_LOLHUMAN_API_KEY || "10dbd7bdb109b10b4f67ad1f";
-        const pinterestApiUrl = `https://api.lolhuman.xyz/api/pinterest?apikey=${apiKey}&query=${encodeURIComponent(
-          keywords
-        )}`;
-
-        console.log("Making request to Pinterest API:", pinterestApiUrl);
+        const apiKey = envCheck.get("REACT_APP_LOLHUMAN_API_KEY");
+        if (!apiKey) {
+          throw new Error("API Key Lolhuman tidak ada");
+        }
+        const pinterestApiUrl = `https://api.lolhuman.xyz/api/pinterest?apikey=${apiKey}&query=${encodedQuery}`;
 
         const pinterestResponse = await axios.get(pinterestApiUrl, {
           timeout: 10000,
         });
-
-        console.log("Pinterest API response status:", pinterestResponse.status);
-        console.log(
-          "Pinterest API data status:",
-          pinterestResponse.data?.status
-        );
 
         if (
           pinterestResponse.data &&
@@ -390,80 +315,51 @@ class ApiService {
             ? pinterestResponse.data.result.slice(0, 5)
             : [pinterestResponse.data.result];
 
-          console.log(
-            `Found ${images.length} Pinterest images. First image URL:`,
-            images[0].substring(0, 100) + (images[0].length > 100 ? "..." : "")
-          );
-
           return {
             success: true,
             imageUrl: images[0], // Return the first image as primary
             additionalImages: images.slice(1), // Additional images if any
             source: "pinterest",
-            prompt: keywords,
+            prompt: searchQuery,
           };
-        } else {
-          console.log(
-            "Pinterest API returned no usable results:",
-            pinterestResponse.data
-          );
         }
       } catch (pinterestError) {
-        console.error("Pinterest API failed:", pinterestError);
-        console.log("Falling back to Unsplash");
+        // Pinterest API failed
       }
 
       // Fallback to Unsplash
       try {
-        const enhancedPrompt = `${prompt}, high quality, detailed, vibrant colors, natural lighting, sustainable, upcycled, eco-friendly`;
-        const encodedPrompt = encodeURIComponent(enhancedPrompt);
-        const imageUrl = `https://source.unsplash.com/featured/?${encodedPrompt}`;
-
-        console.log("Using Unsplash with URL:", imageUrl);
-
-        // Test the Unsplash URL with a HEAD request
-        await axios.head(imageUrl, { timeout: 5000 });
+        // Menggunakan kueri yang lebih ringkas (nama kerajinan) untuk Unsplash
+        const unsplashImageUrl = `https://source.unsplash.com/featured/?${encodedQuery},craft,diy`;
 
         return {
           success: true,
-          imageUrl: imageUrl,
+          imageUrl: unsplashImageUrl,
           source: "unsplash",
-          prompt: enhancedPrompt,
+          prompt: searchQuery,
         };
       } catch (unsplashError) {
-        console.error("Unsplash API failed:", unsplashError);
-        console.log("Falling back to reliable placeholder");
+        // Unsplash API juga gagal
       }
 
-      // Final fallback to a reliable placeholder service or data URI
-      console.log("Using final fallback image");
-
-      // Option 1: Use placehold.co (more reliable than placeholder.com)
+      // --- Fallback Akhir (jika semua gagal) ---
       const fallbackImageUrl = `https://placehold.co/600x400/f0f0f0/2c3e50?text=${encodeURIComponent(
-        "Barbekraft"
+        searchQuery.substring(0, 20)
       )}`;
-
-      // Option 2: Use a data URI as ultimate fallback (always works offline)
-      const dataURIFallback =
-        "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNHB4IiBmaWxsPSIjMmMzZTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSI+QmFyYmVrcmFmdFYyPC90ZXh0Pjwvc3ZnPg==";
-
       return {
         success: true,
         imageUrl: fallbackImageUrl,
         source: "fallback",
-        prompt: prompt,
+        prompt: searchQuery,
       };
     } catch (error: any) {
-      console.error("Error generating image:", error);
-      console.error("Error stack:", error.stack);
-
-      // Return a data URI as ultimate fallback in case of any error
+      // Kembalikan struktur error yang konsisten
       return {
-        success: true,
-        imageUrl:
-          "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgeG1zbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNHB4IiBmaWxsPSIjMmMzZTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSI+QmFyYmVrcmFmdFYyIEZhbGxiYWNrPC90ZXh0Pjwvc3ZnPg==",
-        source: "fallback",
-        prompt: prompt,
+        success: false,
+        imageUrl: `https://placehold.co/600x400/e0e0e0/757575?text=Error+Muat+Gambar`,
+        source: "error",
+        prompt: searchQuery,
+        errorMessage: error.message,
       };
     }
   }

@@ -22,6 +22,7 @@ export interface CraftRecommendation {
   kategori: string;
   estimasiWaktu: string;
   imagePrompt: string;
+  generatedImageUrl?: string;
 }
 
 export interface AIResponse {
@@ -33,6 +34,7 @@ export interface AIResponse {
 }
 
 export interface SuggestionResponse {
+  message: string;
   success: boolean;
   suggestion: CraftRecommendation & {
     isAI: boolean;
@@ -60,8 +62,8 @@ export interface ImageGenerationResponse {
   success: boolean;
   imageUrl: string;
   additionalImages?: string[];
-  source: "pinterest" | "unsplash" | "fallback";
+  source: "pinterest" | "unsplash" | "fallback" | "error";
   prompt: string;
   error?: string;
+  errorMessage?: string;
 }
-

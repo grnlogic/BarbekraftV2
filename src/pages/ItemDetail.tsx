@@ -33,7 +33,6 @@ const ItemDetail: React.FC = () => {
         const response = await itemsAPI.getItemById(id);
         setItem(response.data);
       } catch (err) {
-        console.error("Failed to fetch item:", err);
         setError("Failed to load item details. Please try again later.");
       } finally {
         setLoading(false);

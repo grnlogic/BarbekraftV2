@@ -1,19 +1,36 @@
 import React from "react";
-import { SuggestionResponse } from "../../types";
+import { SuggestionResponse } from "../../types"; // Atau tipe apa pun yang sekarang Anda kirim
 
 interface CraftResultProps {
+  // Jika Anda mengirim keseluruhan SuggestionResponse
   result: SuggestionResponse;
+  // Atau jika Anda hanya mengirim CraftRecommendation dan URL gambar secara terpisah
+  // craft: CraftRecommendation;
+  // imageUrl?: string;
 }
 
 const CraftResult: React.FC<CraftResultProps> = ({ result }) => {
+  // Asumsi result adalah SuggestionResponse yang memiliki generatedImageUrl
   if (!result || !result.suggestion) {
     return null;
   }
 
+  const { suggestion } = result;
+  const generatedImageUrl = (result as any).generatedImageUrl;
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      {/* Tampilkan gambar jika ada */}
+      {generatedImageUrl && (
+        <img 
+          src={generatedImageUrl} 
+          alt={`Visualisasi untuk ${suggestion.nama}`} 
+          className="w-full h-64 object-cover" 
+          onError={(e) => { /* Fallback jika gambar error */ (e.target as HTMLImageElement).style.display = 'none'; }}
+        />
+      )}
       <div className="bg-green-600 text-white py-4 px-6">
-        <h3 className="text-2xl font-bold">{result.suggestion.nama}</h3>
+        <h3 className="text-2xl font-bold">{suggestion.nama}</h3>
         <div className="flex flex-wrap gap-2 mt-2">
           <span className="inline-block bg-green-700 px-2 py-1 text-xs rounded-md">
             {result.suggestion.kategori}
