@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import ImageUploader from "../components/ImageUploader";
 import CraftResult from "../components/CraftResult";
+import InstagramShare from "../components/InstagramShare/InstagramShare";
 import { SuggestionResponse } from "../types";
 import { motion } from "framer-motion";
 import Logo from "../images/Logo.png";
@@ -11,6 +12,7 @@ const Home: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showUploader, setShowUploader] = useState<boolean>(false);
   const [scrolled, setScrolled] = useState(false);
+  const [showInstagramModal, setShowInstagramModal] = useState(false);
 
   // Handle scroll effect for enhanced UI
   useEffect(() => {
@@ -79,6 +81,20 @@ const Home: React.FC = () => {
                 >
                   Telusuri Barang Bekas
                 </Link>
+
+                <button
+                  onClick={() => setShowInstagramModal(true)}
+                  className="px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-medium rounded-full hover:shadow-lg hover:shadow-pink-500/30 transition-all duration-300 flex items-center gap-2"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                  </svg>
+                  Share ke Instagram
+                </button>
               </div>
             </motion.div>
 
@@ -691,6 +707,75 @@ const Home: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Instagram Share Modal */}
+      {showInstagramModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
+            <button
+              onClick={() => setShowInstagramModal(false)}
+              className="absolute top-4 right-4 z-10 w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
+            >
+              <svg
+                className="w-5 h-5 text-gray-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            {result ? (
+              <InstagramShare result={result} />
+            ) : (
+              <div className="p-8 text-center">
+                <div className="mb-6">
+                  <svg
+                    className="w-16 h-16 mx-auto text-gray-300 mb-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-3">
+                    Belum Ada Hasil Analisis
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    Upload foto barang bekas Anda terlebih dahulu untuk
+                    mendapatkan saran daur ulang, kemudian Anda bisa
+                    membagikannya ke Instagram.
+                  </p>
+                  <button
+                    onClick={() => {
+                      setShowInstagramModal(false);
+                      setTimeout(() => {
+                        document
+                          .getElementById("upload-section")
+                          ?.scrollIntoView({ behavior: "smooth" });
+                      }, 100);
+                    }}
+                    className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-500 text-white font-medium rounded-full hover:shadow-lg transition-all duration-300"
+                  >
+                    Upload Foto Sekarang
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

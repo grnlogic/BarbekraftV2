@@ -9,3 +9,15 @@
     transform: rotate(360deg);
   }
 }
+
+/* Add to your global CSS or styled-components */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .pdf-content {
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+  }
+}

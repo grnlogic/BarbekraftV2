@@ -208,17 +208,24 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       );
 
       // Langkah 2: Dapatkan saran kerajinan dari apiService berdasarkan objek yang dideteksi Gemini
-      const suggestionResponse = await apiService.suggestCrafts(newDetectedObjects);
+      const suggestionResponse = await apiService.suggestCrafts(
+        newDetectedObjects
+      );
 
       if (suggestionResponse.success && suggestionResponse.suggestion) {
         let finalSuggestion = suggestionResponse.suggestion;
         let imageUrlForResult: string | undefined = undefined;
 
         // Periksa apakah ada imagePrompt dan coba generate/cari gambar
-        if (finalSuggestion.imagePrompt && finalSuggestion.imagePrompt.trim() !== "") {
+        if (
+          finalSuggestion.imagePrompt &&
+          finalSuggestion.imagePrompt.trim() !== ""
+        ) {
           setProcessStatus("Mencari gambar ilustrasi untuk kerajinan...");
           try {
-            const imageResult = await apiService.generateImage(finalSuggestion.imagePrompt);
+            const imageResult = await apiService.generateImage(
+              finalSuggestion.imagePrompt
+            );
             if (imageResult.success && imageResult.imageUrl) {
               imageUrlForResult = imageResult.imageUrl;
             }
@@ -230,7 +237,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         // Gabungkan hasil akhir untuk dikirim ke onProcessingComplete
         const resultForParent = {
           ...suggestionResponse,
-          generatedImageUrl: imageUrlForResult
+          generatedImageUrl: imageUrlForResult,
         };
 
         if (onProcessingComplete) {
@@ -240,9 +247,16 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         setProcessStatus("Pemrosesan selesai!");
       } else {
         // Tangani jika suggestionResponse tidak sukses atau suggestion null
-        setErrorMessage(suggestionResponse.message || "Gagal mendapatkan saran kerajinan.");
+        setErrorMessage(
+          suggestionResponse.message || "Gagal mendapatkan saran kerajinan."
+        );
         setProcessStatus("Gagal mendapatkan saran kerajinan.");
-        if (onError) onError(new Error(suggestionResponse.message || "Gagal mendapatkan saran kerajinan."));
+        if (onError)
+          onError(
+            new Error(
+              suggestionResponse.message || "Gagal mendapatkan saran kerajinan."
+            )
+          );
       }
     } catch (error: any) {
       const errMsg =
