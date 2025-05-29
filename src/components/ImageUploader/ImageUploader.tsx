@@ -65,22 +65,63 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   const openCamera = async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" }, // Gunakan kamera belakang jika tersedia
+        video: {
+          facingMode: "environment",
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
       });
+      console.log("[React] MediaStream didapatkan:", mediaStream);
+      console.log("[React] Video tracks:", mediaStream.getVideoTracks());
+
+      // Perbaiki pengecekan video tracks
+      if (mediaStream.getVideoTracks().length > 0) {
+        console.log(
+          "[React] Video tracks ditemukan:",
+          mediaStream.getVideoTracks().length
+        );
+      } else {
+        console.error(
+          "[React] Tidak ada video tracks yang ditemukan dalam MediaStream."
+        );
+        setErrorMessage("Tidak dapat mengakses kamera. Video tracks tidak tersedia.");
+        return;
+      }
+
       setStream(mediaStream);
       setShowCamera(true);
 
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
+      // Gunakan setTimeout untuk memastikan DOM sudah dirender
+      setTimeout(() => {
+        if (videoRef.current) {
+          console.log("[React] videoRef.current ditemukan, mengatur srcObject");
+          videoRef.current.srcObject = mediaStream;
+
+          // Tambahkan event listener untuk memastikan video berjalan
+          videoRef.current.onloadedmetadata = () => {
+            console.log("[React] Video metadata loaded");
+            videoRef.current?.play().catch((err) => {
+              console.error("[React] Error saat video.play():", err);
+            });
+          };
+        } else {
+          console.error("[React] videoRef.current TIDAK ditemukan setelah setTimeout.");
+        }
+      }, 100); // Delay 100ms untuk memastikan DOM terender
     } catch (error) {
-      console.error("Error mengakses kamera:", error);
+      console.error("[React] Error mengakses kamera:", error);
+      let errorDetail = "";
+      if (error instanceof Error) {
+        errorDetail = error.message;
+      } else {
+        errorDetail = String(error);
+      }
       setErrorMessage(
-        "Tidak dapat mengakses kamera. Pastikan browser memiliki izin kamera."
+        "Tidak dapat mengakses kamera. Pastikan browser memiliki izin kamera. Detail: " +
+          errorDetail
       );
     }
   };
-
   // Ambil foto dari kamera
   const capturePhoto = () => {
     if (videoRef.current && canvasRef.current) {
@@ -252,6 +293,28 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
               playsInline
               muted
               className="w-full h-64 object-cover"
+              onLoadedMetadata={() => {
+                console.log("[React] Video metadata loaded in component");
+                if (videoRef.current) {
+                  videoRef.current.play().catch(err => {
+                    console.error("[React] Error saat video.play() di onLoadedMetadata:", err);
+                  });
+                }
+              }}
+              onCanPlay={() => {
+                console.log("[React] Video onCanPlay triggered");
+                if (videoRef.current && videoRef.current.paused) {
+                  videoRef.current.play().catch(err => {
+                    console.error("[React] Error saat video.play() di onCanPlay:", err);
+                  });
+                }
+              }}
+              onPlay={() => {
+                console.log("[React] Video started playing");
+              }}
+              onError={(e) => {
+                console.error("[React] Video error:", e);
+              }}
             />
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-4">
               <button
