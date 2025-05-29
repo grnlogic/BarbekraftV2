@@ -6,10 +6,10 @@ interface InstagramPost {
 
 class InstagramService {
   openInstagramApp() {
-      throw new Error('Method not implemented.');
+      throw new Error("Method not implemented.");
   }
   copyToClipboard(caption: string) {
-      throw new Error('Method not implemented.');
+      throw new Error("Method not implemented.");
   }
   private baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
