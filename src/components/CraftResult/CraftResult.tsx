@@ -53,15 +53,21 @@ const CraftResult: React.FC<CraftResultProps> = ({ result }) => {
           <div className="bg-green-500 text-white py-4 px-6 relative">
             <h3 className="text-2xl font-bold">{suggestion.nama}</h3>
             <div className="flex flex-wrap gap-2 mt-2">
-              <span className="inline-block bg-green-600 px-2 py-1 text-xs rounded-md">
-                {suggestion.kategori}
-              </span>
-              <span className="inline-block bg-green-600 px-2 py-1 text-xs rounded-md">
-                {suggestion.tingkatKesulitan}
-              </span>
-              <span className="inline-block bg-green-600 px-2 py-1 text-xs rounded-md">
-                {suggestion.estimasiWaktu}
-              </span>
+              {suggestion.kategori && (
+                <span className="inline-block bg-green-600 px-2 py-1 text-xs rounded-md">
+                  {suggestion.kategori}
+                </span>
+              )}
+              {suggestion.tingkatKesulitan && (
+                <span className="inline-block bg-green-600 px-2 py-1 text-xs rounded-md">
+                  {suggestion.tingkatKesulitan}
+                </span>
+              )}
+              {suggestion.estimasiWaktu && (
+                <span className="inline-block bg-green-600 px-2 py-1 text-xs rounded-md">
+                  {suggestion.estimasiWaktu}
+                </span>
+              )}
             </div>
           </div>
 
@@ -71,7 +77,7 @@ const CraftResult: React.FC<CraftResultProps> = ({ result }) => {
                 Bahan-bahan
               </h4>
               <ul className="list-disc pl-5 space-y-1">
-                {suggestion.bahan.map((item, index) => (
+                {suggestion.bahan?.map((item, index) => (
                   <li key={index} className="text-gray-700">
                     {item}
                   </li>
@@ -89,7 +95,7 @@ const CraftResult: React.FC<CraftResultProps> = ({ result }) => {
                 Langkah Pembuatan
               </h4>
               <ol className="list-decimal pl-5 space-y-2">
-                {suggestion.langkah.map((step, index) => (
+                {suggestion.langkah?.map((step, index) => (
                   <li key={index} className="text-gray-700">
                     {step}
                   </li>
@@ -108,7 +114,7 @@ const CraftResult: React.FC<CraftResultProps> = ({ result }) => {
                 Objek Terdeteksi
               </h5>
               <div className="flex flex-wrap gap-1">
-                {result.detectedObjects.map((obj, index) => (
+                {result.detectedObjects?.map((obj, index) => (
                   <span
                     key={index}
                     className="inline-block bg-gray-200 px-2 py-1 text-xs rounded-md text-gray-600"
@@ -125,7 +131,7 @@ const CraftResult: React.FC<CraftResultProps> = ({ result }) => {
                 Rekomendasi dibuat dengan{" "}
                 {suggestion.aiSource === "gemini"
                   ? "Google Gemini AI"
-                  : suggestion.aiSource}
+                  : suggestion.aiSource || "AI"}
               </p>
             </div>
           </div>

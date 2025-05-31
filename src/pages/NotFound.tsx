@@ -7,14 +7,14 @@ const NotFound: React.FC = () => {
       className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
       style={{
         background:
-          "linear-gradient(to bottom, rgba(59, 130, 246, 0.1), rgba(255, 255, 255, 1))",
+          "linear-gradient(to bottom, rgba(34, 197, 94, 0.1), rgba(255, 255, 255, 1))",
       }}
     >
       <div className="max-w-md w-full text-center backdrop-blur-sm bg-white/90 p-8 rounded-xl shadow-lg border border-gray-200">
         <div className="mb-6">
           <svg
             className="mx-auto h-24 w-24"
-            style={{ color: "#2563eb" }}
+            style={{ color: "#16a34a" }}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -39,7 +39,7 @@ const NotFound: React.FC = () => {
             to="/"
             className="inline-block text-white font-bold py-2 px-6 rounded-lg transition duration-300 shadow-md transform hover:-translate-y-1"
             style={{
-              background: "linear-gradient(to right, #2563eb, #93c5fd)",
+              background: "linear-gradient(to right, #16a34a, #4ade80)",
             }}
           >
             Kembali ke Beranda
@@ -48,7 +48,7 @@ const NotFound: React.FC = () => {
             <Link
               to="/items"
               className="font-medium"
-              style={{ color: "#2563eb" }}
+              style={{ color: "#16a34a" }}
             >
               Lihat Barang Bekas
             </Link>{" "}
@@ -56,7 +56,7 @@ const NotFound: React.FC = () => {
             <Link
               to="/contact"
               className="font-medium"
-              style={{ color: "#2563eb" }}
+              style={{ color: "#16a34a" }}
             >
               Hubungi Kami
             </Link>
