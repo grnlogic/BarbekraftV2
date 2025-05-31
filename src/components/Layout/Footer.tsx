@@ -6,7 +6,7 @@ const Footer: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="text-xl font-bold mb-4">BarbekraftV2</h3>
+            <h3 className="text-xl font-bold mb-4">Barbekraft</h3>
             <p className="text-gray-400">
               Platform untuk mendaur ulang barang bekas menjadi barang
               bermanfaat, membantu lingkungan dan memberikan nilai tambah pada
@@ -52,7 +52,7 @@ const Footer: React.FC = () => {
 
         <div className="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400">
           <p>
-            &copy; {new Date().getFullYear()} BarbekraftV2. All rights reserved.
+            &copy; {new Date().getFullYear()} Barbekraft. All rights reserved.
           </p>
         </div>
       </div>
