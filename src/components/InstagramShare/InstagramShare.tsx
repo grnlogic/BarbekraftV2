@@ -8,6 +8,21 @@ interface InstagramShareProps {
   result: SuggestionResponse;
 }
 
+// Helper function to convert data URL to File object
+async function dataUrlToFile(
+  dataUrl: string,
+  filename: string
+): Promise<File | null> {
+  try {
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+    return new File([blob], filename, { type: blob.type });
+  } catch (error) {
+    console.error("Error converting data URL to file:", error);
+    return null;
+  }
+}
+
 const InstagramShare: React.FC<InstagramShareProps> = ({ result }) => {
   const [userImage, setUserImage] = useState<string>("");
   const [caption, setCaption] = useState("");
@@ -15,6 +30,7 @@ const InstagramShare: React.FC<InstagramShareProps> = ({ result }) => {
   const [copied, setCopied] = useState(false);
   const [includeTutorial, setIncludeTutorial] = useState(true);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -152,6 +168,86 @@ ${
       return null;
     } finally {
       setIsGeneratingPDF(false);
+    }
+  };
+
+  const handleDirectShareToInstagram = async () => {
+    // Check Web Share API support
+    if (!navigator.share) {
+      alert(
+        "Fitur berbagi langsung tidak didukung di browser Anda. Menggunakan metode salin manual & buka Instagram."
+      );
+      handleCopyAndOpenInstagram();
+      return;
+    }
+
+    // Ensure image and caption are ready
+    if (!userImage) {
+      alert("Silakan upload gambar terlebih dahulu untuk dibagikan.");
+      return;
+    }
+
+    if (!caption) {
+      alert(
+        "Silakan generate caption terlebih dahulu atau tulis caption yang ingin dibagikan."
+      );
+      return;
+    }
+
+    setIsSharing(true);
+
+    try {
+      // Prepare filename for the image
+      const imageFileName = result.suggestion?.nama
+        ? `${result.suggestion.nama
+            .toLowerCase()
+            .replace(/\s+/g, "-")}-hasil-share.jpg`
+        : "hasil-kerajinan-share.jpg";
+
+      // Convert data URL to File object
+      const imageFile = await dataUrlToFile(userImage, imageFileName);
+
+      if (!imageFile) {
+        alert(
+          "Gagal mempersiapkan gambar untuk dibagikan. Anda bisa mencoba metode salin manual."
+        );
+        handleCopyAndOpenInstagram();
+        return;
+      }
+
+      // Check if files can be shared
+      if (!navigator.canShare || !navigator.canShare({ files: [imageFile] })) {
+        alert(
+          "Format file tidak didukung untuk berbagi. Menggunakan metode alternatif."
+        );
+        handleCopyAndOpenInstagram();
+        return;
+      }
+
+      // Prepare share data
+      const shareData = {
+        title: `Kreasi Daur Ulang: ${
+          result.suggestion?.nama || "Hasil Kerajinan"
+        }`,
+        text: caption,
+        files: [imageFile],
+      };
+
+      await navigator.share(shareData);
+      // Reset copied state since we're using direct share
+      setCopied(false);
+    } catch (error) {
+      const domError = error as DOMException;
+      if (domError.name !== "AbortError") {
+        console.error("Error saat berbagi:", error);
+        alert(
+          `Gagal membagikan konten: ${domError.message}. Anda bisa mencoba metode salin manual.`
+        );
+        // Fallback to copy method if sharing fails
+        handleCopyAndOpenInstagram();
+      }
+    } finally {
+      setIsSharing(false);
     }
   };
 
@@ -318,19 +414,19 @@ ${
                   </label>
 
                   {/* Tutorial inclusion option */}
-                  <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+                  <div className="mb-4 p-4 bg-green-50 rounded-lg">
                     <label className="flex items-center space-x-3">
                       <input
                         type="checkbox"
                         checked={includeTutorial}
                         onChange={(e) => setIncludeTutorial(e.target.checked)}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
                       />
-                      <span className="text-sm font-medium text-blue-900">
+                      <span className="text-sm font-medium text-green-900">
                         Sertakan tutorial lengkap dalam caption
                       </span>
                     </label>
-                    <p className="text-xs text-blue-700 mt-1 ml-7">
+                    <p className="text-xs text-green-700 mt-1 ml-7">
                       Caption akan menyertakan bahan dan langkah-langkah
                       pembuatan
                     </p>
@@ -339,7 +435,7 @@ ${
                   <div className="space-y-3">
                     <button
                       onClick={generateCaption}
-                      className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-3 rounded-lg font-medium transition-all transform hover:scale-105 flex items-center justify-center gap-2"
+                      className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-4 py-3 rounded-lg font-medium transition-all transform hover:scale-105 flex items-center justify-center gap-2"
                     >
                       <svg
                         className="w-5 h-5"
@@ -462,14 +558,32 @@ ${
               </div>
 
               <button
-                onClick={handleCopyAndOpenInstagram}
+                onClick={handleDirectShareToInstagram}
+                disabled={isSharing}
                 className={`w-full ${
                   copied
                     ? "bg-green-500 hover:bg-green-600"
-                    : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                } text-white px-6 py-4 rounded-lg font-semibold transition-all transform hover:scale-105 flex items-center justify-center gap-3`}
+                    : "bg-gradient-to-r from-green-500 to-green-400 hover:from-green-600 hover:to-green-500"
+                } text-white px-6 py-4 rounded-lg font-semibold transition-all transform hover:scale-105 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
               >
-                {copied ? (
+                {isSharing ? (
+                  <>
+                    <svg
+                      className="w-5 h-5 animate-spin"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                      />
+                    </svg>
+                    Mempersiapkan Share...
+                  </>
+                ) : copied ? (
                   <>
                     <svg
                       className="w-5 h-5"
@@ -495,47 +609,79 @@ ${
                     >
                       <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                     </svg>
-                    Copy Caption & Buka Instagram
+                    {"share" in navigator
+                      ? "Share Langsung ke Instagram"
+                      : "Copy Caption & Buka Instagram"}
                   </>
                 )}
               </button>
+
+              {/* Optional: Add fallback button for manual copy */}
+              {"share" in navigator && (
+                <button
+                  onClick={handleCopyAndOpenInstagram}
+                  className="w-full mt-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                    />
+                  </svg>
+                  Atau Salin Caption Manual
+                </button>
+              )}
+
+              {/* Instructions */}
+              <div className="bg-gradient-to-r from-green-50 to-lime-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg
+                      className="w-3 h-3"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <h5 className="font-semibold text-green-900 mb-2">
+                      Cara Menggunakan
+                    </h5>
+                    <ol className="list-decimal list-inside text-sm text-green-800 space-y-1">
+                      <li>Upload foto hasil kerajinan Anda</li>
+                      <li>
+                        Pilih apakah ingin menyertakan tutorial dalam caption
+                      </li>
+                      <li>
+                        Klik "Generate Caption Instagram" untuk membuat caption
+                        otomatis
+                      </li>
+                      <li>Download tutorial PDF jika diperlukan</li>
+                      <li>Edit caption sesuai keinginan (opsional)</li>
+                      <li>Klik "Copy Caption & Buka Instagram"</li>
+                      <li>
+                        Paste caption di Instagram dan upload foto + PDF
+                        tutorial
+                      </li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
-
-        {/* Instructions */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-start gap-3">
-            <div className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
-            <div>
-              <h5 className="font-semibold text-blue-900 mb-2">
-                Cara Menggunakan
-              </h5>
-              <ol className="list-decimal list-inside text-sm text-blue-800 space-y-1">
-                <li>Upload foto hasil kerajinan Anda</li>
-                <li>Pilih apakah ingin menyertakan tutorial dalam caption</li>
-                <li>
-                  Klik "Generate Caption Instagram" untuk membuat caption
-                  otomatis
-                </li>
-                <li>Download tutorial PDF jika diperlukan</li>
-                <li>Edit caption sesuai keinginan (opsional)</li>
-                <li>Klik "Copy Caption & Buka Instagram"</li>
-                <li>
-                  Paste caption di Instagram dan upload foto + PDF tutorial
-                </li>
-              </ol>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

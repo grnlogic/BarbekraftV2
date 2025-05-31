@@ -48,7 +48,8 @@ const ItemDetail: React.FC = () => {
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-          className="rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"
+          className="rounded-full h-12 w-12 border-t-2 border-b-2"
+          style={{ borderTopColor: "#99d98c", borderBottomColor: "#99d98c" }}
         ></motion.div>
       </div>
     );
@@ -64,7 +65,11 @@ const ItemDetail: React.FC = () => {
           <strong className="font-bold">Error! </strong>
           <span className="block sm:inline">{error || "Item not found"}</span>
           <button
-            className="mt-3 bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold py-2 px-4 rounded"
+            className="mt-3 font-bold py-2 px-4 rounded"
+            style={{
+              backgroundColor: "rgba(217, 237, 146, 0.3)",
+              color: "#99d98c",
+            }}
             onClick={() => navigate("/items")}
           >
             Back to Items
@@ -79,7 +84,11 @@ const ItemDetail: React.FC = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="container mx-auto px-4 py-8 bg-gradient-to-b from-blue-50 to-white min-h-screen"
+      className="container mx-auto px-4 py-8 min-h-screen"
+      style={{
+        background:
+          "linear-gradient(to bottom, rgba(217, 237, 146, 0.2), rgba(255, 255, 255, 1))",
+      }}
     >
       <motion.button
         initial={{ x: -20, opacity: 0 }}
@@ -88,7 +97,8 @@ const ItemDetail: React.FC = () => {
         whileHover={{ x: -5 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => navigate("/items")}
-        className="mb-6 bg-white hover:bg-gray-100 text-blue-700 font-bold py-2 px-4 rounded-lg inline-flex items-center shadow-sm transition duration-300 hover:translate-x-1"
+        className="mb-6 bg-white hover:bg-gray-100 font-bold py-2 px-4 rounded-lg inline-flex items-center shadow-sm transition duration-300 hover:translate-x-1"
+        style={{ color: "#6b8e23" }}
       >
         <span>← Back to Items</span>
       </motion.button>
@@ -131,13 +141,21 @@ const ItemDetail: React.FC = () => {
             <div className="flex items-center mb-4">
               <motion.span
                 whileHover={{ scale: 1.05 }}
-                className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full mr-3"
+                className="text-sm px-3 py-1 rounded-full mr-3"
+                style={{
+                  backgroundColor: "rgba(217, 237, 146, 0.3)",
+                  color: "#6b8e23",
+                }}
               >
                 {item.condition}
               </motion.span>
               <motion.span
                 whileHover={{ scale: 1.05 }}
-                className="bg-indigo-100 text-indigo-800 text-sm px-3 py-1 rounded-full"
+                className="text-sm px-3 py-1 rounded-full"
+                style={{
+                  backgroundColor: "rgba(153, 217, 140, 0.3)",
+                  color: "#6b8e23",
+                }}
               >
                 {item.category}
               </motion.span>
@@ -147,7 +165,7 @@ const ItemDetail: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
-              className="text-gray-700 mb-6 whitespace-pre-line leading-relaxed"
+              className="text-gray-800 mb-6 whitespace-pre-line leading-relaxed"
             >
               {item.description}
             </motion.p>
@@ -156,14 +174,18 @@ const ItemDetail: React.FC = () => {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.7 }}
-              className="mb-6 bg-blue-50 p-4 rounded-lg"
+              className="mb-6 p-4 rounded-lg"
+              style={{ backgroundColor: "rgba(217, 237, 146, 0.3)" }}
             >
-              <h2 className="text-xl font-semibold mb-2 text-blue-900">
+              <h2
+                className="text-xl font-semibold mb-2"
+                style={{ color: "#6b8e23" }}
+              >
                 Ide Daur Ulang:
               </h2>
               {item.recyclingIdeas && item.recyclingIdeas.length > 0 ? (
                 <motion.ul
-                  className="list-disc list-inside text-gray-700 space-y-1"
+                  className="list-disc list-inside text-gray-800 space-y-1"
                   variants={{
                     hidden: { opacity: 0 },
                     show: {
@@ -189,7 +211,7 @@ const ItemDetail: React.FC = () => {
                   ))}
                 </motion.ul>
               ) : (
-                <p className="text-gray-500 italic">
+                <p className="text-gray-600 italic">
                   Belum ada ide daur ulang.
                 </p>
               )}
@@ -201,13 +223,13 @@ const ItemDetail: React.FC = () => {
               transition={{ delay: 0.8 }}
               className="border-t border-gray-200 pt-4"
             >
-              <p className="text-gray-600">
+              <p className="text-gray-700">
                 Diposting oleh:{" "}
-                <span className="font-semibold text-blue-700">
+                <span className="font-semibold" style={{ color: "#6b8e23" }}>
                   {item.owner?.name || "Anonymous"}
                 </span>
               </p>
-              <p className="text-gray-600">
+              <p className="text-gray-700">
                 Tanggal:{" "}
                 {new Date(item.createdAt).toLocaleDateString("id-ID", {
                   year: "numeric",

@@ -94,7 +94,7 @@ class GeminiService {
       "Langkah 5: Deskripsi detail"
       "dan langkah seterusnya, tidak usah berpaku 5 langkah langkah, sesuaikan dengan kompleksitas kerajinan"
     ],
-    "tingkatKesulitan": "Mudah/Sedang/Sulit",
+    "tingkatKesulitan, jika memang sulit sebutkan saja": "Mudah/Sedang/Sulit",
     "kategori": "Dekorasi Rumah/Alat Praktis/Mainan/Aksesoris/dll",
     "estimasiWaktu": "Perkiraan waktu pengerjaan (misalnya: 30 menit)",
     "imagePrompt": "Deskripsi detail untuk menghasilkan gambar kerajinan ini"

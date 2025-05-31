@@ -28,10 +28,10 @@ const WasteDataChart: React.FC<WasteDataChartProps> = ({
   data,
   colors = {
     backgroundColor: "white",
-    lineColor: "#2962FF",
+    lineColor: "#99d98c",
     textColor: "black",
-    areaTopColor: "rgba(41, 98, 255, 0.56)",
-    areaBottomColor: "rgba(41, 98, 255, 0.04)",
+    areaTopColor: "rgba(153, 217, 140, 0.56)",
+    areaBottomColor: "rgba(153, 217, 140, 0.04)",
   },
   title = "Pengelolaan Sampah (dalam ton/tahun)",
 }) => {

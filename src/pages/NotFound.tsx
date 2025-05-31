@@ -3,11 +3,18 @@ import { Link } from "react-router-dom";
 
 const NotFound: React.FC = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-blue-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full text-center backdrop-blur-sm bg-white/80 p-8 rounded-xl shadow-lg">
+    <div
+      className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+      style={{
+        background:
+          "linear-gradient(to bottom, rgba(59, 130, 246, 0.1), rgba(255, 255, 255, 1))",
+      }}
+    >
+      <div className="max-w-md w-full text-center backdrop-blur-sm bg-white/90 p-8 rounded-xl shadow-lg border border-gray-200">
         <div className="mb-6">
           <svg
-            className="mx-auto h-24 w-24 text-blue-500"
+            className="mx-auto h-24 w-24"
+            style={{ color: "#2563eb" }}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -23,28 +30,33 @@ const NotFound: React.FC = () => {
         <h1 className="text-4xl font-extrabold text-gray-900 mb-4">
           404 - Halaman Tidak Ditemukan
         </h1>
-        <p className="text-lg text-gray-600 mb-8">
+        <p className="text-lg text-gray-700 mb-8">
           Maaf, halaman yang Anda cari tidak dapat ditemukan atau telah
           dipindahkan.
         </p>
         <div className="space-y-4">
           <Link
             to="/"
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition duration-300 shadow-md transform hover:-translate-y-1"
+            className="inline-block text-white font-bold py-2 px-6 rounded-lg transition duration-300 shadow-md transform hover:-translate-y-1"
+            style={{
+              background: "linear-gradient(to right, #2563eb, #93c5fd)",
+            }}
           >
             Kembali ke Beranda
           </Link>
           <div className="mt-4">
             <Link
               to="/items"
-              className="text-blue-600 hover:text-blue-800 font-medium"
+              className="font-medium"
+              style={{ color: "#2563eb" }}
             >
               Lihat Barang Bekas
             </Link>{" "}
             |{" "}
             <Link
               to="/contact"
-              className="text-blue-600 hover:text-blue-800 font-medium"
+              className="font-medium"
+              style={{ color: "#2563eb" }}
             >
               Hubungi Kami
             </Link>

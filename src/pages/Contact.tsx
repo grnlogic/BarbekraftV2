@@ -75,14 +75,19 @@ const Contact: React.FC = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="container mx-auto px-4 py-8 bg-gradient-to-b from-blue-50 to-white min-h-screen"
+      className="container mx-auto px-4 py-8 min-h-screen"
+      style={{
+        background:
+          "linear-gradient(to bottom, rgba(59, 130, 246, 0.1), rgba(255, 255, 255, 1))",
+      }}
     >
       <div className="max-w-4xl mx-auto">
         <motion.h1
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6 }}
-          className="text-3xl font-bold mb-6 text-center text-blue-900"
+          className="text-3xl font-bold mb-6 text-center"
+          style={{ color: "#6b8e23" }}
         >
           Hubungi Kami
         </motion.h1>
@@ -93,9 +98,13 @@ const Contact: React.FC = () => {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className="bg-white rounded-xl shadow-md p-6 mb-8 border border-blue-100"
+              className="bg-white rounded-xl shadow-md p-6 mb-8 border"
+              style={{ borderColor: "#d9ed92" }}
             >
-              <h2 className="text-xl font-semibold mb-4 text-blue-800">
+              <h2
+                className="text-xl font-semibold mb-4"
+                style={{ color: "#6b8e23" }}
+              >
                 Informasi Kontak
               </h2>
 
@@ -141,13 +150,15 @@ const Contact: React.FC = () => {
                   >
                     <motion.div
                       whileHover={{ scale: 1.1, rotate: 5 }}
-                      className="bg-blue-100 p-3 rounded-full mr-4"
+                      className="p-3 rounded-full mr-4"
+                      style={{ backgroundColor: "rgba(217, 237, 146, 0.3)" }}
                     >
                       {/* Icon content - simplified for brevity */}
                       {item.icon === "phone" && (
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          className="h-6 w-6 text-blue-600"
+                          className="h-6 w-6"
+                          style={{ color: "#6b8e23" }}
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -163,7 +174,8 @@ const Contact: React.FC = () => {
                       {item.icon === "email" && (
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          className="h-6 w-6 text-blue-600"
+                          className="h-6 w-6"
+                          style={{ color: "#6b8e23" }}
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -179,7 +191,8 @@ const Contact: React.FC = () => {
                       {item.icon === "address" && (
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          className="h-6 w-6 text-blue-600"
+                          className="h-6 w-6"
+                          style={{ color: "#6b8e23" }}
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -200,7 +213,7 @@ const Contact: React.FC = () => {
                       )}
                     </motion.div>
                     <div>
-                      <h3 className="font-medium text-blue-900">
+                      <h3 className="font-medium" style={{ color: "#6b8e23" }}>
                         {item.title}
                       </h3>
                       <p className="text-gray-600">{item.content}</p>
@@ -231,9 +244,13 @@ const Contact: React.FC = () => {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="bg-white rounded-xl shadow-md p-6 border border-blue-100"
+            className="bg-white rounded-xl shadow-md p-6 border"
+            style={{ borderColor: "#d9ed92" }}
           >
-            <h2 className="text-xl font-semibold mb-4 text-blue-800">
+            <h2
+              className="text-xl font-semibold mb-4"
+              style={{ color: "#6b8e23" }}
+            >
               Kirim Pesan
             </h2>
 
@@ -241,7 +258,7 @@ const Contact: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg relative mb-4"
+                className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg relative mb-4"
                 role="alert"
               >
                 <strong className="font-bold">Sukses! </strong>
@@ -289,14 +306,15 @@ const Contact: React.FC = () => {
                   <motion.div key={field.id} variants={itemVariants}>
                     <label
                       htmlFor={field.id}
-                      className="block text-blue-900 text-sm font-bold mb-2"
+                      className="block text-sm font-bold mb-2"
+                      style={{ color: "#6b8e23" }}
                     >
                       {field.label}
                     </label>
                     <motion.input
                       whileFocus={{
                         scale: 1.01,
-                        boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.2)",
+                        boxShadow: "0 0 0 3px rgba(153, 217, 140, 0.2)",
                       }}
                       type={field.type}
                       id={field.id}
@@ -304,7 +322,14 @@ const Contact: React.FC = () => {
                       value={field.value}
                       onChange={handleChange}
                       required={field.required}
-                      className="shadow-sm border border-blue-200 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="shadow-sm border border-gray-300 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-green-300"
+                      style={{ borderColor: "#d9ed92" }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = "#99d98c";
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = "#d9ed92";
+                      }}
                     />
                   </motion.div>
                 ))}
@@ -312,21 +337,29 @@ const Contact: React.FC = () => {
                 <motion.div variants={itemVariants}>
                   <label
                     htmlFor="subject"
-                    className="block text-blue-900 text-sm font-bold mb-2"
+                    className="block text-sm font-bold mb-2"
+                    style={{ color: "#6b8e23" }}
                   >
                     Subjek
                   </label>
                   <motion.select
                     whileFocus={{
                       scale: 1.01,
-                      boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.2)",
+                      boxShadow: "0 0 0 3px rgba(153, 217, 140, 0.2)",
                     }}
                     id="subject"
                     name="subject"
                     value={formData.subject}
                     onChange={handleChange}
                     required
-                    className="shadow-sm border border-blue-200 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="shadow-sm border border-gray-300 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-green-300"
+                    style={{ borderColor: "#d9ed92" }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = "#99d98c";
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "#d9ed92";
+                    }}
                   >
                     <option value="">Pilih Subjek</option>
                     <option value="general">Pertanyaan Umum</option>
@@ -339,14 +372,15 @@ const Contact: React.FC = () => {
                 <motion.div variants={itemVariants}>
                   <label
                     htmlFor="message"
-                    className="block text-blue-900 text-sm font-bold mb-2"
+                    className="block text-sm font-bold mb-2"
+                    style={{ color: "#6b8e23" }}
                   >
                     Pesan
                   </label>
                   <motion.textarea
                     whileFocus={{
                       scale: 1.01,
-                      boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.2)",
+                      boxShadow: "0 0 0 3px rgba(153, 217, 140, 0.2)",
                     }}
                     id="message"
                     name="message"
@@ -354,7 +388,14 @@ const Contact: React.FC = () => {
                     onChange={handleChange}
                     required
                     rows={5}
-                    className="shadow-sm border border-blue-200 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="shadow-sm border border-gray-300 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-green-300"
+                    style={{ borderColor: "#d9ed92" }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = "#99d98c";
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "#d9ed92";
+                    }}
                   ></motion.textarea>
                 </motion.div>
 
@@ -364,9 +405,12 @@ const Contact: React.FC = () => {
                     whileTap={{ scale: 0.97 }}
                     type="submit"
                     disabled={isSubmitting}
-                    className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-300 ${
+                    className={`w-full text-white font-bold py-2 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-opacity-50 transition duration-300 ${
                       isSubmitting ? "opacity-70 cursor-not-allowed" : ""
                     }`}
+                    style={{
+                      background: "linear-gradient(to right, #99d98c, #d9ed92)",
+                    }}
                   >
                     {isSubmitting ? "Mengirim..." : "Kirim Pesan"}
                   </motion.button>

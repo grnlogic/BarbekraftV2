@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase, supabaseSecondary } from "../lib/supabase"; // Perbarui import
+import { supabase, supabaseSecondary } from "../lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  youtubeAPI,
+  YouTubeVideo as YouTubeVideoAPI,
+} from "../services/youtubeAPI";
 
 // Tambahkan interface untuk tutorial
 interface Tutorial {
@@ -27,9 +31,30 @@ interface Item {
   likes?: number;
   featured?: boolean;
   cardType?: "image-only" | "with-description" | "large-feature";
-  type?: "regular" | "tutorial"; // Menandai tipe item
+  type?: "regular" | "tutorial" | "youtube-tutorial"; // Update untuk mendukung youtube-tutorial
   videoUrl?: string; // URL video untuk tutorial
   bahanbahan?: string; // Bahan-bahan untuk tutorial
+}
+
+// Tambahkan interface untuk video YouTube yang akan ditampilkan
+interface YouTubeItem extends Item {
+  youtubeVideoId: string;
+  channelTitle: string;
+}
+
+// Add missing interface
+interface YouTubeVideo {
+  id: { videoId: string };
+  snippet: {
+    title: string;
+    description: string;
+    publishedAt: string;
+    channelTitle: string;
+    thumbnails: {
+      high?: { url: string };
+      medium?: { url: string };
+    };
+  };
 }
 
 const Items: React.FC = () => {
@@ -46,6 +71,10 @@ const Items: React.FC = () => {
   const [tutorials, setTutorials] = useState<Tutorial[]>([]);
   const [loadingTutorials, setLoadingTutorials] = useState<boolean>(true);
   const [errorTutorials, setErrorTutorials] = useState<string | null>(null);
+
+  // Tambahkan state untuk video YouTube
+  const [youtubeVideos, setYoutubeVideos] = useState<YouTubeVideoAPI[]>([]);
+  const [loadingYoutube, setLoadingYoutube] = useState<boolean>(true);
 
   // Tambahkan state untuk modal video
   const [videoModalOpen, setVideoModalOpen] = useState(false);
@@ -207,8 +236,55 @@ const Items: React.FC = () => {
       }
     };
 
+    // Tambahkan fungsi untuk mengambil video YouTube
+    const fetchYouTubeVideos = async () => {
+      try {
+        setLoadingYoutube(true);
+
+        // Cari video tutorial berdasarkan kategori barang bekas
+        const categories = [
+          "plastik",
+          "kardus",
+          "kaca",
+          "kertas",
+          "logam",
+          "kain",
+        ];
+        const videos = await youtubeAPI.searchRecyclingTutorials(categories);
+
+        setYoutubeVideos(videos);
+
+        // Konversi video YouTube menjadi format Item untuk ditampilkan di galeri
+        const youtubeItems: Item[] = videos.map((video, index) => ({
+          id: `youtube-${video.id.videoId}`,
+          title: video.snippet.title,
+          description: video.snippet.description.substring(0, 200) + "...",
+          imageUrl:
+            video.snippet.thumbnails.high?.url ||
+            video.snippet.thumbnails.medium?.url,
+          condition: "Tutorial YouTube",
+          createdAt: video.snippet.publishedAt,
+          username: video.snippet.channelTitle,
+          likes: Math.floor(Math.random() * 50) + 10,
+          featured: index === 0,
+          cardType: "with-description",
+          type: "youtube-tutorial" as const, // Explicit typing
+          videoUrl: youtubeAPI.getVideoURL(video.id.videoId),
+          bahanbahan: "Lihat deskripsi video",
+        }));
+
+        // Tambahkan video YouTube ke items
+        setItems((prevItems) => [...prevItems, ...youtubeItems]);
+      } catch (error) {
+        console.error("Error fetching YouTube videos:", error);
+      } finally {
+        setLoadingYoutube(false);
+      }
+    };
+
     fetchItems();
-    fetchTutorials(); // Panggil fungsi untuk mengambil tutorial
+    fetchTutorials();
+    fetchYouTubeVideos(); // Panggil fungsi YouTube
   }, []);
 
   const openModal = (item: Item) => {
@@ -234,10 +310,18 @@ const Items: React.FC = () => {
 
   // Fungsi untuk membuka modal video
   const openVideoModal = (videoUrl: string) => {
-    const videoId = getYoutubeID(videoUrl);
+    let videoId = "";
+
+    if (videoUrl.includes("youtube.com") || videoUrl.includes("youtu.be")) {
+      videoId = getYoutubeID(videoUrl);
+    } else {
+      videoId = getYoutubeID(videoUrl);
+    }
+
     if (videoId) {
       setCurrentVideoId(videoId);
       setVideoModalOpen(true);
+      document.body.style.overflow = "hidden";
     }
   };
 
@@ -342,7 +426,10 @@ const Items: React.FC = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div
+          className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2"
+          style={{ borderTopColor: "#99d98c", borderBottomColor: "#99d98c" }}
+        ></div>
       </div>
     );
   }
@@ -361,6 +448,68 @@ const Items: React.FC = () => {
 
   // Fungsi bantuan untuk merender berbagai jenis kartu
   const renderCard = (item: Item, index: number) => {
+    // Jika item adalah video YouTube, gunakan renderer khusus
+    if (item.type === "youtube-tutorial") {
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: index * 0.1 }}
+          whileHover={{ scale: 1.03 }}
+          className="group cursor-pointer bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl h-full flex flex-col border-2 border-red-100"
+          onClick={() => item.videoUrl && openVideoModal(item.videoUrl)}
+        >
+          <div className="relative aspect-video overflow-hidden">
+            <img
+              src={item.imageUrl}
+              alt={item.title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src =
+                  "https://via.placeholder.com/600x400?text=Video+Tutorial";
+              }}
+            />
+            {/* Overlay YouTube play button */}
+            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+              <svg
+                className="w-16 h-16 text-red-500 drop-shadow-lg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
+              </svg>
+            </div>
+            <div className="absolute top-2 right-2">
+              <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full flex items-center">
+                <svg
+                  className="w-3 h-3 mr-1"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
+                </svg>
+                YouTube
+              </span>
+            </div>
+          </div>
+          <div className="p-4 flex-1 flex flex-col">
+            <h3 className="font-semibold mb-2 text-gray-800 group-hover:text-red-600 line-clamp-2">
+              {item.title}
+            </h3>
+            <p className="text-sm text-gray-600 line-clamp-2 mb-4 flex-grow">
+              {item.description}
+            </p>
+            <div className="flex justify-between items-center">
+              <span className="bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full">
+                {item.condition}
+              </span>
+              <span className="text-xs text-gray-500">{item.username}</span>
+            </div>
+          </div>
+        </motion.div>
+      );
+    }
+
     // Cek apakah item adalah tutorial
     if (item.type === "tutorial") {
       return (
@@ -484,50 +633,73 @@ const Items: React.FC = () => {
 
   // Render versi kartu yang lebih kecil untuk sidebar
   const renderSidebarCard = (item: Item) => {
+    const isYouTube = item.type === "youtube-tutorial";
+
     return (
       <motion.div
         key={item.id}
         whileHover={{
-          backgroundColor: "rgba(239, 246, 255, 0.9)",
+          backgroundColor: isYouTube
+            ? "rgba(254, 226, 226, 0.9)"
+            : "rgba(239, 246, 255, 0.9)",
           x: 2,
         }}
-        className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-50 cursor-pointer transition-colors duration-200"
-        onClick={() => openModal(item)}
+        className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-colors duration-200 ${
+          isYouTube ? "hover:bg-red-50" : "hover:bg-blue-50"
+        }`}
+        onClick={() =>
+          isYouTube && item.videoUrl
+            ? openVideoModal(item.videoUrl)
+            : openModal(item)
+        }
       >
-        <div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
+        <div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0 relative">
           <img
             src={item.imageUrl}
             alt={item.title}
             className="w-full h-full object-cover"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              target.src =
-                "https://via.placeholder.com/100?text=Tidak+Ada+Gambar";
+              target.src = isYouTube
+                ? "https://via.placeholder.com/100?text=YouTube"
+                : "https://via.placeholder.com/100?text=Tidak+Ada+Gambar";
             }}
           />
+          {isYouTube && (
+            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+              <svg
+                className="w-6 h-6 text-red-500"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
+              </svg>
+            </div>
+          )}
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium text-gray-800 truncate">
+          <h3 className="text-sm font-medium text-gray-800 truncate flex items-center">
             {item.title}
+            {isYouTube && (
+              <svg
+                className="w-3 h-3 ml-1 text-red-500"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
+              </svg>
+            )}
           </h3>
           <p className="text-xs text-gray-500 mt-1 line-clamp-1">
             {item.description}
           </p>
           <div className="flex items-center mt-1">
-            <span className="text-xs text-red-500 flex items-center">
-              <svg
-                className="w-3 h-3 mr-1"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              {item.likes || 0}
+            <span
+              className={`text-xs px-2 py-0.5 rounded-full ${
+                isYouTube ? "bg-red-100 text-red-800" : "text-red-500"
+              }`}
+            >
+              {isYouTube ? "YouTube" : `❤️ ${item.likes || 0}`}
             </span>
           </div>
         </div>
@@ -541,35 +713,44 @@ const Items: React.FC = () => {
     { id: "Sangat Baik", name: "Sangat Baik" },
     { id: "Layak Pakai", name: "Layak Pakai" },
     { id: "Tutorial", name: "Tutorial" },
+    { id: "YouTube", name: "Video YouTube" }, // Tambahkan filter YouTube
   ];
 
-  // Filter item berdasarkan filter yang dipilih
+  // Modifikasi fungsi filter
   const filteredItems = items.filter(
     (item) =>
       (activeFilter === "all"
         ? true
         : activeFilter === "Tutorial"
-        ? // Jika filter 'Tutorial' dipilih, tampilkan hanya tutorial
-          item.type === "tutorial"
-        : // Untuk filter kondisi lainnya
-          item.type !== "tutorial" && item.condition === activeFilter) &&
+        ? item.type === "tutorial"
+        : activeFilter === "YouTube"
+        ? item.type === "youtube-tutorial"
+        : item.type !== "tutorial" &&
+          item.type !== "youtube-tutorial" &&
+          item.condition === activeFilter) &&
       (searchTerm === ""
         ? true
         : item.title.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
-    <div className="container mx-auto px-4 py-8 bg-gradient-to-b from-blue-50 to-white min-h-screen">
+    <div
+      className="container mx-auto px-4 py-8 min-h-screen"
+      style={{
+        background:
+          "linear-gradient(to bottom, rgba(59, 130, 246, 0.1), rgba(255, 255, 255, 1))",
+      }}
+    >
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="mb-8"
       >
-        <h1 className="text-3xl font-bold mb-2 text-blue-900">
+        <h1 className="text-3xl font-bold mb-2" style={{ color: "#6b8e23" }}>
           Galeri Barang Bekas
         </h1>
-        <p className="text-blue-700">
+        <p className="text-gray-700">
           Jelajahi barang bekas yang bisa diubah menjadi barang bernilai
         </p>
       </motion.div>
@@ -582,7 +763,8 @@ const Items: React.FC = () => {
           className="bg-white p-8 rounded-xl shadow-sm text-center"
         >
           <svg
-            className="w-16 h-16 text-blue-400 mx-auto mb-4"
+            className="w-16 h-16 mx-auto mb-4"
+            style={{ color: "#99d98c" }}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -614,9 +796,24 @@ const Items: React.FC = () => {
                   whileTap={{ scale: 0.95 }}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
                     activeFilter === filter.id
-                      ? "bg-blue-600 text-white"
-                      : "bg-white text-gray-700 hover:bg-gray-100"
+                      ? "text-white"
+                      : "bg-white text-gray-800 hover:text-white border border-gray-200"
                   }`}
+                  style={{
+                    backgroundColor:
+                      activeFilter === filter.id ? "#99d98c" : "transparent",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (activeFilter !== filter.id) {
+                      e.currentTarget.style.backgroundColor =
+                        "rgba(153, 217, 140, 0.1)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (activeFilter !== filter.id) {
+                      e.currentTarget.style.backgroundColor = "transparent";
+                    }
+                  }}
                   onClick={() => setActiveFilter(filter.id)}
                 >
                   {filter.name}
@@ -626,98 +823,19 @@ const Items: React.FC = () => {
 
             <motion.div layout className="grid grid-cols-12 gap-4">
               <AnimatePresence>
-                {filteredItems.map((item, index) => {
-                  // Untuk item pertama, selalu jadikan featured jika belum
-                  if (index === 0 && !item.featured) {
-                    return (
-                      <motion.div
-                        key={item.id}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.5 }}
-                        className="col-span-12 md:col-span-8 transition-all duration-300 hover:transform hover:scale-[1.01]"
-                      >
-                        <motion.div
-                          whileHover={{ scale: 1.01 }}
-                          className="group cursor-pointer relative rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 h-full"
-                          onClick={() => openModal(item)}
-                        >
-                          <div className="aspect-video h-full">
-                            <img
-                              src={item.imageUrl}
-                              alt={item.title}
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.src =
-                                  "https://via.placeholder.com/600x400?text=Tidak+Ada+Gambar";
-                              }}
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-60 group-hover:opacity-70 transition-opacity duration-300"></div>
-
-                            <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                              <h3 className="text-xl font-bold mb-2 group-hover:text-blue-300 transition-colors">
-                                {item.title}
-                              </h3>
-                              <p className="text-sm text-white/80 line-clamp-2">
-                                {item.description}
-                              </p>
-                              <div className="flex items-center justify-between mt-4">
-                                <span className="bg-blue-500/30 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full">
-                                  {item.condition}
-                                </span>
-                                <div className="flex items-center space-x-1">
-                                  <svg
-                                    className="w-4 h-4 text-red-500"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                  >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
-                                  <span className="text-xs">{item.likes}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      </motion.div>
-                    );
-                  }
-
-                  if (item.featured) {
-                    return (
-                      <motion.div
-                        key={item.id}
-                        className="col-span-12 md:col-span-8 transition-all duration-300 hover:transform hover:scale-[1.01]"
-                      >
-                        {renderCard(item, index)}
-                      </motion.div>
-                    );
-                  } else if (item.cardType === "with-description") {
-                    return (
-                      <motion.div
-                        key={item.id}
-                        className="col-span-6 md:col-span-4 transition-all duration-300 hover:transform hover:scale-[1.01]"
-                      >
-                        {renderCard(item, index)}
-                      </motion.div>
-                    );
-                  } else {
-                    return (
-                      <motion.div
-                        key={item.id}
-                        className="col-span-6 sm:col-span-4 md:col-span-4 transition-all duration-300 hover:transform hover:scale-[1.02]"
-                      >
-                        {renderCard(item, index)}
-                      </motion.div>
-                    );
-                  }
-                })}
+                {filteredItems.map((item, index) => (
+                  <motion.div
+                    key={item.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.5 }}
+                    className="col-span-12 sm:col-span-6 lg:col-span-4"
+                  >
+                    {renderCard(item, index)}
+                  </motion.div>
+                ))}
               </AnimatePresence>
             </motion.div>
           </div>
@@ -734,27 +852,47 @@ const Items: React.FC = () => {
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300 }}
-                className="bg-white rounded-xl shadow-sm p-4"
+                className="bg-white rounded-xl shadow-sm p-4 border"
+                style={{ borderColor: "#d9ed92" }}
               >
-                <h3 className="text-lg font-semibold mb-3 text-gray-800">
+                <h3
+                  className="text-lg font-semibold mb-3"
+                  style={{ color: "#6b8e23" }}
+                >
                   Cari Barang
                 </h3>
                 <div className="relative">
                   <motion.input
-                    initial={{ boxShadow: "0 0 0 rgba(59, 130, 246, 0)" }}
+                    initial={{ boxShadow: "0 0 0 rgba(153, 217, 140, 0)" }}
                     whileFocus={{
-                      boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.3)",
+                      boxShadow: "0 0 0 3px rgba(153, 217, 140, 0.3)",
                     }}
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Cari barang bekas..."
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:outline-none"
+                    style={{ borderColor: "#d9ed92" }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = "#99d98c";
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "#d9ed92";
+                    }}
                   />
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-500"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                    style={
+                      { "--hover-color": "#99d98c" } as React.CSSProperties
+                    }
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = "#99d98c";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = "#6b7280";
+                    }}
                   >
                     <svg
                       className="w-5 h-5"
@@ -815,7 +953,13 @@ const Items: React.FC = () => {
 
                 {loadingTutorials ? (
                   <div className="flex justify-center items-center h-24">
-                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                    <div
+                      className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2"
+                      style={{
+                        borderTopColor: "#99d98c",
+                        borderBottomColor: "#99d98c",
+                      }}
+                    ></div>
                   </div>
                 ) : errorTutorials ? (
                   <div className="text-sm text-red-500 p-3">
@@ -848,7 +992,8 @@ const Items: React.FC = () => {
                     >
                       <Link
                         to="/tutorials"
-                        className="text-blue-600 text-sm font-medium hover:underline"
+                        className="text-sm font-medium hover:underline"
+                        style={{ color: "#99d98c" }}
                       >
                         Lihat Semua Tutorial →
                       </Link>
@@ -857,23 +1002,107 @@ const Items: React.FC = () => {
                 )}
               </motion.div>
 
+              {/* Video YouTube Section - NEW */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+                className="bg-white rounded-xl shadow-sm p-4 border-2"
+                style={{ borderColor: "rgba(217, 237, 146, 0.5)" }}
+              >
+                <h3 className="text-lg font-semibold mb-3 text-gray-800 flex items-center">
+                  <svg
+                    className="w-5 h-5 mr-2 text-red-500"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
+                  </svg>
+                  Video Tutorial YouTube
+                </h3>
+
+                {loadingYoutube ? (
+                  <div className="flex justify-center items-center h-24">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-red-500"></div>
+                  </div>
+                ) : youtubeVideos.length === 0 ? (
+                  <div className="text-sm text-gray-500 p-3 text-center">
+                    Belum ada video tutorial YouTube tersedia.
+                  </div>
+                ) : (
+                  <motion.div
+                    className="space-y-2"
+                    variants={{
+                      hidden: { opacity: 0 },
+                      visible: {
+                        opacity: 1,
+                        transition: {
+                          staggerChildren: 0.1,
+                        },
+                      },
+                    }}
+                    initial="hidden"
+                    animate="visible"
+                  >
+                    {youtubeVideos.slice(0, 3).map((video) => {
+                      const item: Item = {
+                        id: `youtube-${video.id.videoId}`,
+                        title: video.snippet.title,
+                        description:
+                          video.snippet.description.substring(0, 80) + "...",
+                        imageUrl: video.snippet.thumbnails.medium?.url || "",
+                        condition: "YouTube",
+                        createdAt: video.snippet.publishedAt,
+                        username: video.snippet.channelTitle,
+                        type: "youtube-tutorial" as const, // Explicit typing
+                        videoUrl: youtubeAPI.getVideoURL(video.id.videoId),
+                      };
+                      return renderSidebarCard(item);
+                    })}
+
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      className="mt-3 text-center"
+                    >
+                      <button
+                        onClick={() => setActiveFilter("YouTube")}
+                        className="text-red-600 text-sm font-medium hover:underline"
+                      >
+                        Lihat Semua Video YouTube →
+                      </button>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </motion.div>
+
               {/* Kotak Bantuan */}
-              <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-sm p-5 text-white">
+              <div
+                className="rounded-xl shadow-sm p-5 text-white"
+                style={{
+                  background: "linear-gradient(to right, #99d98c, #d9ed92)",
+                }}
+              >
                 <h3 className="text-lg font-semibold mb-2">
                   Punya Barang Bekas?
                 </h3>
-                <p className="text-sm text-blue-100 mb-4">
+                <p className="text-green-100 text-sm mb-4">
                   Gunakan aplikasi kami untuk mendapatkan ide daur ulang
                   kreatif.
                 </p>
-                <button className="bg-white text-blue-600 hover:bg-blue-50 transition-colors duration-200 px-4 py-2 rounded-lg text-sm font-medium w-full">
+                <button className="bg-white text-green-700 transition-colors duration-200 px-4 py-2 rounded-lg text-sm font-medium w-full hover:bg-green-50">
                   Mulai Sekarang
                 </button>
               </div>
 
               {/* Tag/Kategori */}
-              <div className="bg-white rounded-xl shadow-sm p-4">
-                <h3 className="text-lg font-semibold mb-3 text-gray-800">
+              <div
+                className="bg-white rounded-xl shadow-sm p-4 border"
+                style={{ borderColor: "#d9ed92" }}
+              >
+                <h3
+                  className="text-lg font-semibold mb-3"
+                  style={{ color: "#6b8e23" }}
+                >
                   Kategori
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -889,7 +1118,19 @@ const Items: React.FC = () => {
                   ].map((tag) => (
                     <span
                       key={tag}
-                      className="px-3 py-1 bg-gray-100 hover:bg-gray-200 cursor-pointer rounded-full text-sm text-gray-700 transition-colors duration-200"
+                      className="px-3 py-1 text-sm cursor-pointer hover:shadow-md transition-all duration-200 rounded-full"
+                      style={{
+                        backgroundColor: "rgba(217, 237, 146, 0.3)",
+                        color: "#6b8e23",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor =
+                          "rgba(153, 217, 140, 0.4)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor =
+                          "rgba(217, 237, 146, 0.3)";
+                      }}
                     >
                       {tag}
                     </span>
@@ -1060,7 +1301,10 @@ const Items: React.FC = () => {
                     href="https://kraftzy.vercel.app/login"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded text-center block"
+                    className="w-full text-white font-medium py-2 px-4 rounded text-center block"
+                    style={{
+                      background: "linear-gradient(to right, #99d98c, #d9ed92)",
+                    }}
                   >
                     Lihat Detail Barang
                   </a>
@@ -1086,18 +1330,36 @@ const Items: React.FC = () => {
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.9 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-white rounded-xl overflow-hidden w-full max-w-3xl"
+              className="bg-white rounded-lg overflow-hidden max-w-4xl w-full max-h-[90vh]"
+              onClick={(e) => e.stopPropagation()}
             >
-              <div className="relative pb-[56.25%]">
+              <div className="relative aspect-video">
                 <iframe
                   src={`https://www.youtube.com/embed/${currentVideoId}?autoplay=1`}
                   title="YouTube video player"
-                  className="absolute inset-0 w-full h-full"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
+                  className="w-full h-full"
                 ></iframe>
+                <button
+                  className="absolute top-4 right-4 bg-black bg-opacity-50 text-white rounded-full p-2 hover:bg-opacity-75"
+                  onClick={() => setVideoModalOpen(false)}
+                >
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
               </div>
             </motion.div>
           </motion.div>

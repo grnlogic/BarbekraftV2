@@ -50,12 +50,22 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-green-50">
       {/* Hero Section - Modern Redesign */}
       <div className="relative overflow-hidden py-20 lg:py-32">
         {/* Background elements */}
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-gradient-to-br from-purple-400 to-indigo-600 rounded-full opacity-10 blur-3xl"></div>
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-gradient-to-tr from-blue-400 to-teal-400 rounded-full opacity-10 blur-3xl"></div>
+        <div
+          className="absolute -top-24 -right-24 w-96 h-96 bg-gradient-to-br from-green-400 to-green-600 rounded-full opacity-10 blur-3xl"
+          style={{
+            background: "linear-gradient(to bottom right, #99d98c, #d9ed92)",
+          }}
+        ></div>
+        <div
+          className="absolute -bottom-24 -left-24 w-96 h-96 bg-gradient-to-tr from-green-300 to-green-400 rounded-full opacity-10 blur-3xl"
+          style={{
+            background: "linear-gradient(to top right, #d9ed92, #99d98c)",
+          }}
+        ></div>
 
         <div className="container mx-auto px-6 relative z-10">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
@@ -65,10 +75,13 @@ const Home: React.FC = () => {
               transition={{ duration: 0.7 }}
               className="lg:w-1/2"
             >
-              <h1 className="text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-indigo-600 to-blue-500 bg-clip-text text-transparent">
+              <h1
+                className="text-5xl lg:text-6xl font-bold mb-6"
+                style={{ color: "#6b8e23" }}
+              >
                 Daur Ulang Secara Kreatif
               </h1>
-              <p className="text-xl text-slate-600 mb-8 leading-relaxed">
+              <p className="text-xl text-gray-700 mb-8 leading-relaxed">
                 Ubah barang bekas Anda menjadi kreasi berharga bersama kami
                 Platform bertenaga AI. Kurangi pemborosan, percikkan
                 kreativitas, dan buat perbedaan.
@@ -77,14 +90,29 @@ const Home: React.FC = () => {
               <div className="flex flex-wrap gap-5 mb-8">
                 <Link
                   to="/items"
-                  className="px-8 py-4 border-2 border-indigo-600 text-indigo-600 font-medium rounded-full hover:bg-indigo-50 transition-all duration-300"
+                  className="px-8 py-4 border-2 font-medium rounded-full transition-all duration-300 hover:text-white"
+                  style={{
+                    borderColor: "#99d98c",
+                    color: "#6b8e23",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "#99d98c";
+                    e.currentTarget.style.color = "white";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                    e.currentTarget.style.color = "#6b8e23";
+                  }}
                 >
                   Telusuri Barang Bekas
                 </Link>
 
                 <button
                   onClick={() => setShowInstagramModal(true)}
-                  className="px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-medium rounded-full hover:shadow-lg hover:shadow-pink-500/30 transition-all duration-300 flex items-center gap-2"
+                  className="px-8 py-4 text-white font-medium rounded-full hover:shadow-lg transition-all duration-300 flex items-center gap-2"
+                  style={{
+                    background: "linear-gradient(to right, #99d98c, #d9ed92)",
+                  }}
                 >
                   <svg
                     className="w-5 h-5"
@@ -105,8 +133,18 @@ const Home: React.FC = () => {
               className="lg:w-1/2 relative"
             >
               <div className="relative w-full aspect-square max-w-lg mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-2xl rotate-3 opacity-10"></div>
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-2xl -rotate-3 opacity-10"></div>
+                <div
+                  className="absolute inset-0 rounded-2xl rotate-3 opacity-10"
+                  style={{
+                    background: "linear-gradient(to right, #99d98c, #d9ed92)",
+                  }}
+                ></div>
+                <div
+                  className="absolute inset-0 rounded-2xl -rotate-3 opacity-10"
+                  style={{
+                    background: "linear-gradient(to right, #99d98c, #d9ed92)",
+                  }}
+                ></div>
                 <img
                   src="/images/hero-image.jpg"
                   alt="Recycling illustration"
@@ -124,108 +162,20 @@ const Home: React.FC = () => {
         </div>
       </div>
 
-      {/* Analysis Section - Side by Side Modern Design */}
-      <div className="py-16 relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 opacity-50"></div>
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4 text-slate-800">
-              AI-Powered Recycling Analysis
-            </h2>
-            <p className="text-slate-600">
-              Unggah foto barang bekas Anda dan dapatkan daur ulang kreatif
-              saran secara instan
-            </p>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div className="flex flex-col lg:flex-row">
-              {/* Upload Section */}
-              <div
-                id="upload-section"
-                className="w-full lg:w-1/2 p-8 border-b lg:border-b-0 lg:border-r border-slate-100"
-              >
-                <div className="mb-5">
-                  <h3 className="text-xl font-semibold mb-3 text-slate-800">
-                    Upload
-                  </h3>
-                  <p className="text-slate-500 mb-6">
-                    Ambil foto yang jelas dari item Anda untuk mendapatkan
-                    analisis terbaik hasil
-                  </p>
-
-                  <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-xl">
-                    <ImageUploader
-                      onProcessingComplete={handleProcessingComplete}
-                      onError={handleError}
-                    />
-                  </div>
-
-                  {error && (
-                    <div className="mt-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg">
-                      <h3 className="font-semibold mb-1">Error</h3>
-                      <p>{error}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Results Section */}
-              <div
-                id="result-section"
-                className="w-full lg:w-1/2 p-8 bg-gradient-to-br from-slate-50 to-blue-50"
-              >
-                <h3 className="text-xl font-semibold mb-3 text-slate-800">
-                  {result
-                    ? "Your Recycling Suggestions"
-                    : "Recycling Ideas Will Appear Here"}
-                </h3>
-
-                {result ? (
-                  <div className="space-y-6">
-                    <CraftResult result={result} />
-                    <div className="text-center mt-8">
-                      <button
-                        onClick={startNewAnalysis}
-                        className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-500 text-white font-medium rounded-full hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300"
-                      >
-                        Analyze Another Item
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="py-12 flex flex-col items-center justify-center text-slate-400 bg-white bg-opacity-50 rounded-xl">
-                    <svg
-                      className="w-16 h-16 mb-4 text-indigo-300"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1.5}
-                        d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                    <p>Upload an image to see AI-generated recycling ideas</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* How it works section - Modern Cards */}
       <div className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center mb-16">
-            <span className="inline-block px-3 py-1 bg-indigo-100 text-indigo-600 rounded-full text-sm font-medium mb-4">
+            <span
+              className="inline-block px-3 py-1 rounded-full text-sm font-medium mb-4"
+              style={{
+                backgroundColor: "rgba(217, 237, 146, 0.3)",
+                color: "#6b8e23",
+              }}
+            >
               Bagaimana Cara Kerjanya
             </span>
-            <h2 className="text-3xl font-bold mb-4 text-slate-800">
+            <h2 className="text-3xl font-bold mb-4 text-gray-900">
               Ubah Barang Bekas Anda Menjadi Karya Seni
             </h2>
             <p className="text-slate-600">
@@ -310,7 +260,12 @@ const Home: React.FC = () => {
                 key={index}
                 className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-slate-100"
               >
-                <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-2xl flex items-center justify-center text-white mb-6">
+                <div
+                  className="w-16 h-16 rounded-2xl flex items-center justify-center text-white mb-6"
+                  style={{
+                    background: "linear-gradient(to right, #99d98c, #d9ed92)",
+                  }}
+                >
                   {step.icon}
                 </div>
                 <h3 className="text-xl font-semibold mb-3 text-slate-800">
@@ -323,14 +278,140 @@ const Home: React.FC = () => {
         </div>
       </div>
 
+      {/* Analysis Section - Side by Side Modern Design */}
+      <div className="py-16 relative">
+        <div
+          className="absolute inset-0 bg-gradient-to-br from-green-50 to-green-50 opacity-50"
+          style={{
+            background:
+              "linear-gradient(to bottom right, rgba(217, 237, 146, 0.3), rgba(153, 217, 140, 0.3))",
+          }}
+        ></div>
+        <div className="container mx-auto px-6 relative z-10">
+          <div className="max-w-3xl mx-auto text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4 text-gray-900">
+              AI-Powered Recycling Analysis
+            </h2>
+            <p className="text-slate-600">
+              Unggah foto barang bekas Anda dan dapatkan daur ulang kreatif
+              saran secara instan
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div className="flex flex-col lg:flex-row">
+              {/* Upload Section */}
+              <div
+                id="upload-section"
+                className="w-full lg:w-1/2 p-8 border-b lg:border-b-0 lg:border-r border-slate-100"
+              >
+                <div className="mb-5">
+                  <h3 className="text-xl font-semibold mb-3 text-slate-800">
+                    Upload
+                  </h3>
+                  <p className="text-slate-500 mb-6">
+                    Ambil foto yang jelas dari item Anda untuk mendapatkan
+                    analisis terbaik hasil
+                  </p>
+
+                  <div
+                    className="rounded-xl"
+                    style={{
+                      background:
+                        "linear-gradient(to bottom right, rgba(217, 237, 146, 0.2), rgba(153, 217, 140, 0.2))",
+                    }}
+                  >
+                    <ImageUploader
+                      onProcessingComplete={handleProcessingComplete}
+                      onError={handleError}
+                    />
+                  </div>
+
+                  {error && (
+                    <div className="mt-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg">
+                      <h3 className="font-semibold mb-1">Error</h3>
+                      <p>{error}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Results Section */}
+              <div
+                id="result-section"
+                className="w-full lg:w-1/2 p-8"
+                style={{
+                  background:
+                    "linear-gradient(to bottom right, rgba(217, 237, 146, 0.2), rgba(153, 217, 140, 0.2))",
+                }}
+              >
+                <h3 className="text-xl font-semibold mb-3 text-slate-800">
+                  {result
+                    ? "Your Recycling Suggestions"
+                    : "Recycling Ideas Will Appear Here"}
+                </h3>
+
+                {result ? (
+                  <div className="space-y-6">
+                    <CraftResult result={result} />
+                    <div className="text-center mt-8">
+                      <button
+                        onClick={startNewAnalysis}
+                        className="px-6 py-3 text-white font-medium rounded-full hover:shadow-lg transition-all duration-300"
+                        style={{
+                          background:
+                            "linear-gradient(to right, #99d98c, #d9ed92)",
+                        }}
+                      >
+                        Analyze Another Item
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="py-12 flex flex-col items-center justify-center text-slate-400 bg-white bg-opacity-50 rounded-xl">
+                    <svg
+                      className="w-16 h-16 mb-4 text-blue-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                    <p>Upload an image to see AI-generated recycling ideas</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Popular recycling ideas - Gallery Design */}
-      <div className="py-20 bg-gradient-to-br from-indigo-50 to-sky-50">
+      <div
+        className="py-20"
+        style={{
+          background:
+            "linear-gradient(to bottom right, rgba(217, 237, 146, 0.3), rgba(153, 217, 140, 0.2))",
+        }}
+      >
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center mb-16">
-            <span className="inline-block px-3 py-1 bg-indigo-100 text-indigo-600 rounded-full text-sm font-medium mb-4">
+            <span
+              className="inline-block px-3 py-1 rounded-full text-sm font-medium mb-4"
+              style={{
+                backgroundColor: "rgba(217, 237, 146, 0.3)",
+                color: "#6b8e23",
+              }}
+            >
               Trending Ideas
             </span>
-            <h2 className="text-3xl font-bold mb-4 text-slate-800">
+            <h2 className="text-3xl font-bold mb-4 text-gray-900">
               Barang Rekomendasi untuk Daur Ulang
             </h2>
             <p className="text-slate-600">
@@ -397,7 +478,10 @@ const Home: React.FC = () => {
           <div className="text-center mt-12">
             <Link
               to="/items"
-              className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-blue-500 text-white font-medium rounded-full hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 inline-flex items-center"
+              className="px-8 py-4 text-white font-medium rounded-full hover:shadow-lg transition-all duration-300 inline-flex items-center"
+              style={{
+                background: "linear-gradient(to right, #99d98c, #d9ed92)",
+              }}
             >
               <span>Jelajahi Semua Ide</span>
               <svg
@@ -420,10 +504,16 @@ const Home: React.FC = () => {
       </div>
 
       {/* Tambahkan setelah bagian "How it works" */}
-      <div className="py-16 bg-gradient-to-br from-slate-100 to-blue-100">
+      <div
+        className="py-16"
+        style={{
+          background:
+            "linear-gradient(to bottom right, rgba(217, 237, 146, 0.4), rgba(153, 217, 140, 0.3))",
+        }}
+      >
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <span className="inline-block px-3 py-1 bg-indigo-100 text-indigo-600 rounded-full text-sm font-medium mb-4">
+            <span className="inline-block px-3 py-1 bg-orange-100 text-orange-600 rounded-full text-sm font-medium mb-4">
               Data Sampah Indonesia
             </span>
             <h2 className="text-3xl font-bold mb-4 text-slate-800">
@@ -437,7 +527,7 @@ const Home: React.FC = () => {
             <div className="flex justify-center">
               <Link
                 to="/waste-statistics"
-                className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-blue-500 text-white font-medium rounded-full hover:shadow-lg transition-all duration-300"
+                className="px-8 py-4 bg-orange-600 text-white font-medium rounded-full hover:bg-orange-700 hover:shadow-lg transition-all duration-300"
               >
                 Lihat Data Statistik Lengkap
               </Link>
@@ -478,7 +568,7 @@ const Home: React.FC = () => {
                         cy="50"
                         r="40"
                         fill="none"
-                        stroke="#10b981"
+                        stroke="#99d98c"
                         strokeWidth="10"
                         strokeDasharray="251.2"
                         strokeDashoffset="100.5"
@@ -491,7 +581,7 @@ const Home: React.FC = () => {
             </div>
 
             {/* CTA Card */}
-            <div className="bg-gradient-to-r from-indigo-600 to-blue-600 p-6 rounded-xl shadow-lg text-white flex flex-col justify-center">
+            <div className="bg-orange-600 p-6 rounded-xl shadow-lg text-white flex flex-col justify-center">
               <h3 className="text-2xl font-bold mb-4">
                 40.17% Sampah Masih Tidak Terkelola
               </h3>
@@ -501,7 +591,7 @@ const Home: React.FC = () => {
               </p>
               <button
                 onClick={startNewAnalysis}
-                className="px-6 py-3 bg-white text-indigo-600 font-medium rounded-full hover:shadow-lg transition-all duration-300 self-start"
+                className="px-6 py-3 bg-white text-orange-600 font-medium rounded-full hover:bg-orange-50 hover:shadow-lg transition-all duration-300 self-start"
               >
                 Mulai Daur Ulang Sekarang
               </button>
@@ -510,13 +600,19 @@ const Home: React.FC = () => {
         </div>
       </div>
 
-      {/* Ajakan Bertindak - Moved just above testimonial section */}
-      <div className="py-20 bg-gradient-to-r from-indigo-600 to-blue-600 text-white">
+      {/* Ajakan Bertindak */}
+      <div
+        className="py-20 text-white"
+        style={{ background: "linear-gradient(to right, #99d98c, #6b8e23)" }}
+      >
         <div className="container mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold mb-6">
             Siap Memulai Perjalanan Daur Ulang Anda?
           </h2>
-          <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
+          <p
+            className="text-xl mb-10 max-w-2xl mx-auto"
+            style={{ color: "rgba(255, 255, 255, 0.9)" }}
+          >
             Bergabunglah dengan komunitas kreator peduli lingkungan kami dan
             ubah limbah Anda menjadi kreasi indah.
           </p>
@@ -525,7 +621,15 @@ const Home: React.FC = () => {
               href="https://kraftzy.vercel.app/login"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-8 py-4 bg-white text-indigo-600 font-medium rounded-full hover:shadow-lg hover:shadow-indigo-700/30 transition-all duration-300"
+              className="px-8 py-4 bg-white font-medium rounded-full hover:shadow-lg transition-all duration-300"
+              style={{ color: "#6b8e23" }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor =
+                  "rgba(255, 255, 255, 0.9)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "white";
+              }}
             >
               Mulai Sekarang
             </a>
@@ -543,7 +647,13 @@ const Home: React.FC = () => {
       <div className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center mb-16">
-            <span className="inline-block px-3 py-1 bg-indigo-100 text-indigo-600 rounded-full text-sm font-medium mb-4">
+            <span
+              className="inline-block px-3 py-1 rounded-full text-sm font-medium mb-4"
+              style={{
+                backgroundColor: "rgba(217, 237, 146, 0.3)",
+                color: "#6b8e23",
+              }}
+            >
               Testimoni
             </span>
             <h2 className="text-3xl font-bold mb-4 text-slate-800">
@@ -572,7 +682,7 @@ const Home: React.FC = () => {
                       viewBox="0 0 20 20"
                       fill="currentColor"
                     >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.707-.293l5.414-5.414a1 1 0 01.707-.293h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     </svg>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -580,7 +690,7 @@ const Home: React.FC = () => {
                       viewBox="0 0 20 20"
                       fill="currentColor"
                     >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.707-.293l5.414-5.414a1 1 0 01.707-.293h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     </svg>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -588,7 +698,7 @@ const Home: React.FC = () => {
                       viewBox="0 0 20 20"
                       fill="currentColor"
                     >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.707-.293l5.414-5.414a1 1 0 01.707-.293h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     </svg>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -596,7 +706,7 @@ const Home: React.FC = () => {
                       viewBox="0 0 20 20"
                       fill="currentColor"
                     >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.707-.293l5.414-5.414a1 1 0 01.707-.293h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     </svg>
                   </div>
                 </div>
@@ -620,7 +730,7 @@ const Home: React.FC = () => {
                       viewBox="0 0 20 20"
                       fill="currentColor"
                     >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.707-.293l5.414-5.414a1 1 0 01.707-.293h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     </svg>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -628,7 +738,7 @@ const Home: React.FC = () => {
                       viewBox="0 0 20 20"
                       fill="currentColor"
                     >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.707-.293l5.414-5.414a1 1 0 01.707-.293h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     </svg>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -636,7 +746,7 @@ const Home: React.FC = () => {
                       viewBox="0 0 20 20"
                       fill="currentColor"
                     >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.707-.293l5.414-5.414a1 1 0 01.707-.293h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     </svg>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -644,7 +754,7 @@ const Home: React.FC = () => {
                       viewBox="0 0 20 20"
                       fill="currentColor"
                     >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.707-.293l5.414-5.414a1 1 0 01.707-.293h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     </svg>
                   </div>
                 </div>
@@ -668,7 +778,7 @@ const Home: React.FC = () => {
                       viewBox="0 0 20 20"
                       fill="currentColor"
                     >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.707-.293l5.414-5.414a1 1 0 01.707-.293h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     </svg>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -676,7 +786,7 @@ const Home: React.FC = () => {
                       viewBox="0 0 20 20"
                       fill="currentColor"
                     >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.707-.293l5.414-5.414a1 1 0 01.707-.293h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     </svg>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -684,7 +794,7 @@ const Home: React.FC = () => {
                       viewBox="0 0 20 20"
                       fill="currentColor"
                     >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.707-.293l5.414-5.414a1 1 0 01.707-.293h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     </svg>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -701,9 +811,18 @@ const Home: React.FC = () => {
           </div>
 
           <div className="flex justify-center mt-8">
-            <button className="h-2 w-2 rounded-full bg-blue-600 mx-1"></button>
-            <button className="h-2 w-2 rounded-full bg-blue-300 mx-1"></button>
-            <button className="h-2 w-2 rounded-full bg-blue-300 mx-1"></button>
+            <button
+              className="h-2 w-2 rounded-full mx-1"
+              style={{ backgroundColor: "#99d98c" }}
+            ></button>
+            <button
+              className="h-2 w-2 rounded-full mx-1"
+              style={{ backgroundColor: "#d9ed92" }}
+            ></button>
+            <button
+              className="h-2 w-2 rounded-full mx-1"
+              style={{ backgroundColor: "#d9ed92" }}
+            ></button>
           </div>
         </div>
       </div>
@@ -766,7 +885,10 @@ const Home: React.FC = () => {
                           ?.scrollIntoView({ behavior: "smooth" });
                       }, 100);
                     }}
-                    className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-500 text-white font-medium rounded-full hover:shadow-lg transition-all duration-300"
+                    className="px-6 py-3 text-white font-medium rounded-full hover:shadow-lg transition-all duration-300"
+                    style={{
+                      background: "linear-gradient(to right, #99d98c, #d9ed92)",
+                    }}
                   >
                     Upload Foto Sekarang
                   </button>

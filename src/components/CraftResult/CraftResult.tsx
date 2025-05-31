@@ -50,16 +50,16 @@ const CraftResult: React.FC<CraftResultProps> = ({ result }) => {
             />
           )}
 
-          <div className="bg-green-600 text-white py-4 px-6 relative">
+          <div className="bg-green-500 text-white py-4 px-6 relative">
             <h3 className="text-2xl font-bold">{suggestion.nama}</h3>
             <div className="flex flex-wrap gap-2 mt-2">
-              <span className="inline-block bg-green-700 px-2 py-1 text-xs rounded-md">
+              <span className="inline-block bg-green-600 px-2 py-1 text-xs rounded-md">
                 {suggestion.kategori}
               </span>
-              <span className="inline-block bg-green-700 px-2 py-1 text-xs rounded-md">
+              <span className="inline-block bg-green-600 px-2 py-1 text-xs rounded-md">
                 {suggestion.tingkatKesulitan}
               </span>
-              <span className="inline-block bg-green-700 px-2 py-1 text-xs rounded-md">
+              <span className="inline-block bg-green-600 px-2 py-1 text-xs rounded-md">
                 {suggestion.estimasiWaktu}
               </span>
             </div>
@@ -102,15 +102,16 @@ const CraftResult: React.FC<CraftResultProps> = ({ result }) => {
               )}
             </div>
 
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-              <h4 className="text-md font-semibold mb-2 text-gray-800">
+            {/* Move detected objects section to bottom and make it less prominent */}
+            <div className="mt-6 p-3 bg-gray-50 rounded-lg border-t">
+              <h5 className="text-sm font-medium mb-2 text-gray-600">
                 Objek Terdeteksi
-              </h4>
-              <div className="flex flex-wrap gap-2">
+              </h5>
+              <div className="flex flex-wrap gap-1">
                 {result.detectedObjects.map((obj, index) => (
                   <span
                     key={index}
-                    className="inline-block bg-gray-200 px-2 py-1 text-xs rounded-md"
+                    className="inline-block bg-gray-200 px-2 py-1 text-xs rounded-md text-gray-600"
                     title={`Confidence: ${Math.round(obj.enhanced * 100)}%`}
                   >
                     {obj.class}
@@ -134,7 +135,7 @@ const CraftResult: React.FC<CraftResultProps> = ({ result }) => {
         <div className="absolute top-4 right-4 z-10">
           <button
             onClick={downloadAsPDF}
-            className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-md text-sm flex items-center gap-2 transition-colors shadow-lg"
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm flex items-center gap-2 transition-colors shadow-lg"
             title="Download panduan sebagai PDF"
           >
             <svg

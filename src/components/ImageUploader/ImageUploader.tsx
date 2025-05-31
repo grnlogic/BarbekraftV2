@@ -398,7 +398,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           <div className="flex space-x-4 mb-4">
             <button
               onClick={openFileDialog}
-              className="flex-1 py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300 flex items-center justify-center space-x-2"
+              className="flex-1 py-3 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300 flex items-center justify-center space-x-2"
             >
               <svg
                 className="h-5 w-5"
@@ -515,7 +515,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           <button
             onClick={processImage}
             disabled={isProcessing}
-            className="w-full py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-300 disabled:opacity-50"
+            className="w-full py-2 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300 disabled:opacity-50"
           >
             Proses Gambar
           </button>

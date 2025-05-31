@@ -11,14 +11,19 @@ const About: React.FC = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="container mx-auto px-4 py-8 bg-gradient-to-b from-blue-50 to-white"
+      className="container mx-auto px-4 py-8"
+      style={{
+        background:
+          "linear-gradient(to bottom, rgba(59, 130, 246, 0.1), rgba(255, 255, 255, 1))",
+      }}
     >
       <div className="max-w-4xl mx-auto">
         <motion.h1
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6 }}
-          className="text-3xl font-bold mb-6 text-center text-blue-900"
+          className="text-3xl font-bold mb-6 text-center"
+          style={{ color: "#99d98c" }}
         >
           Tentang Barbekraft
         </motion.h1>
@@ -44,19 +49,11 @@ const About: React.FC = () => {
           />
 
           <div className="p-6">
-            <motion.h2
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="text-2xl font-bold mb-4 text-blue-800"
-            >
-              Misi Kami
-            </motion.h2>
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
-              className="text-gray-700 mb-6 leading-relaxed"
+              className="text-gray-800 mb-6 leading-relaxed"
             >
               Barbekraft adalah platform inovatif yang menggabungkan teknologi
               kecerdasan buatan dengan semangat daur ulang untuk menciptakan
@@ -69,7 +66,8 @@ const About: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
-              className="text-2xl font-bold mb-4 text-blue-800"
+              className="text-2xl font-bold mb-4"
+              style={{ color: "#6b8e23" }} // Hijau lebih gelap untuk kontras lebih baik
             >
               Bagaimana Kami Bekerja
             </motion.h2>
@@ -77,7 +75,7 @@ const About: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.7 }}
-              className="text-gray-700 mb-6 leading-relaxed"
+              className="text-gray-800 mb-6 leading-relaxed"
             >
               Dengan menggunakan model AI canggih, kami menganalisis foto barang
               bekas yang diunggah pengguna dan memberikan saran kreatif tentang
@@ -92,7 +90,8 @@ const About: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
-              className="text-2xl font-bold mb-4 text-blue-800"
+              className="text-2xl font-bold mb-4"
+              style={{ color: "#99d98c" }}
             >
               Tim Pengembang
             </motion.h2>
@@ -100,7 +99,7 @@ const About: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.9 }}
-              className="text-gray-700 mb-6 leading-relaxed"
+              className="text-gray-800 mb-6 leading-relaxed"
             >
               Barbekraft dikembangkan oleh tim ahli teknologi dan lingkungan
               yang berkomitmen untuk menciptakan solusi berkelanjutan melalui
@@ -158,7 +157,8 @@ const About: React.FC = () => {
                     y: -10,
                     boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
                   }}
-                  className="text-center bg-blue-50 rounded-lg p-4 hover:shadow-md transition-all"
+                  className="text-center rounded-lg p-4 hover:shadow-md transition-all"
+                  style={{ backgroundColor: "rgba(217, 237, 146, 0.3)" }}
                 >
                   <motion.img
                     whileHover={{ scale: 1.05 }}
@@ -172,10 +172,15 @@ const About: React.FC = () => {
                         "https://via.placeholder.com/150?text=Developer";
                     }}
                   />
-                  <h3 className="font-bold text-lg text-blue-900">
+                  <h3
+                    className="font-bold text-lg"
+                    style={{ color: "#99d98c" }}
+                  >
                     {member.name}
                   </h3>
-                  <p className="text-blue-700 font-medium">{member.role}</p>
+                  <p className="font-medium" style={{ color: "#99d98c" }}>
+                    {member.role}
+                  </p>
                   <p className="text-gray-600 text-sm mt-2">{member.desc}</p>
                 </motion.div>
               ))}
@@ -187,9 +192,13 @@ const About: React.FC = () => {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.6 }}
-          className="bg-blue-50 rounded-lg p-6 mb-8 border border-blue-200"
+          className="rounded-lg p-6 mb-8 border"
+          style={{
+            backgroundColor: "rgba(217, 237, 146, 0.3)",
+            borderColor: "#d9ed92",
+          }}
         >
-          <h2 className="text-2xl font-bold mb-4 text-blue-800">
+          <h2 className="text-2xl font-bold mb-4" style={{ color: "#99d98c" }}>
             Dampak Lingkungan
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -215,7 +224,8 @@ const About: React.FC = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.8 + index * 0.2, duration: 0.5 }}
-                    className="text-3xl font-bold text-blue-600"
+                    className="text-3xl font-bold"
+                    style={{ color: "#99d98c" }}
                   >
                     {stat.value}
                   </motion.span>
